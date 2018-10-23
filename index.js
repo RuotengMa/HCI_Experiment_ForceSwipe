@@ -6,16 +6,25 @@ var $ = require("jquery");
 require("bootstrap");
 
 function debugMsg(msg){
-    $("#debug_text").html(msg);
+    if(msg.constructor == Array){
+      infoStr = "array length: " + msg.length + "<br>" +
+                "array content: " + msg.join(",");
+
+      $("#debug_text").html(infoStr);
+    }
+    else
+      $("#debug_text").html(msg);
 }
 
-
+var timeUpdate = [];
 
 
 function forceUpdate(force){
         //debugMsg(force);
         forceBarVal = 100 * force;
         forceBarValStr = forceBarVal + "%";
+
+        timeUpdate.push(Date.now());
 
         $("#forceBar").width(forceBarValStr);
 }
@@ -45,7 +54,12 @@ $("#textContent").on("mousedown", function(e){
 ;
 
 function swipeHandler( xMove, yMove, tDown, tUp ){
-    debugMsg("Now into swipe Handler");
+    console.log("Now into swipe Handler");
+
+
+    debugMsg(timeUpdate);
+    timeUpdate = [];
+
 }
 
 

@@ -24,23 +24,34 @@
 </head>
 <body>
 
-<div class="container-fluid bg-info">Force Detection
-    <div class="row">
-        <div class="col-sm">
-            <div class="forceContainer bg-light" style="width:30%;height:15px;">
-                <div id="forceBar" class="bg-success" style="width:50%;height:100%; "></div>
-            </div>
-        </div>
-        <div class="col-sm">
-                    <div id="debug_text"></div>
-        </div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">ForceSwipe</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>  
+        </ul>
     </div>
 
-    <div class="row">
-        <div class="col-sm bg-primary" id="leftPanel">
+    <div class="forceContainer bg-light" style="width:30%;height:15px;">
+        <div id="forceBar" class="bg-success" style="width:50%;height:100%; "></div>
+    </div>
+
+
+</nav>
+ <div id="debug_text"></div>
  
-        </div>
-        <div class="col-sm-8 bg-light" id="textContent">
+<div class="container-fluid bg-info">
+
+    <div class="row">
+        <div class="col-sm bg-light" id="textContent">
                 <h1>The Title of the book</h1>
 
                 <pre style="word-wrap: break-word;">
@@ -346,9 +357,7 @@ Curabitur sapien justo, tincidunt id mi et, faucibus elementum tellus. Nullam so
                 </pre>
 
         </div>
-        <div class="col-sm bg-secondary" id="rightPanel">
-                3
-        </div>
+
     </div>
 </div>
 
