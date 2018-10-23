@@ -9,8 +9,11 @@ function debugMsg(msg){
     $("#debug_text").html(msg);
 }
 
+
+
+
 function forceUpdate(force){
-        debugMsg(force);
+        //debugMsg(force);
         forceBarVal = 100 * force;
         forceBarValStr = forceBarVal + "%";
 
@@ -19,30 +22,35 @@ function forceUpdate(force){
 
 
 
-Pressure.set('a', {
-  start: function(force, event){
-        //console.log(force);
-        forceUpdate(force);
-    },
-  end: function(force, event){
-        //console.log(force);
-        forceUpdate(force);
-    },
-  startDeepPress: function(force, event){
-        //console.log(force);
-        forceUpdate(force);
-    },
-  endDeepPress: function(force, event){
-        //console.log(force);
-        forceUpdate(force);
-    },
-  change: function(force, event){
-        forceUpdate(force);
-    }
-  });
+$("#textContent").on("mousedown", function(e){
+  xDown = e.pageX;
+  yDown = e.pageY;
+  tDown = Date.now();
+})
+.on("mouseup", function(e){
+  xUp = e.pageX;
+  yUp = e.pageY;
+  tUp = Date.now();
+
+  xTraverse = xUp - xDown;
+  yTraverse = yUp - yDown;
+  timeElapsed = tUp - tDown;
+
+  if ((Math.abs(xTraverse) > 30 || Math.abs(yTraverse) > 30 ) && (timeElapsed < 1000))  {
+    console.log("swipe detected!");
+
+    swipeHandler(xTraverse, yTraverse, tDown, tUp);
+  }
+})
+;
+
+function swipeHandler( xMove, yMove, tDown, tUp ){
+    debugMsg("Now into swipe Handler");
+}
 
 
-Pressure.set('#leftPanel', {
+
+Pressure.set('#textContent', {
   start: function(force, event){
         //console.log(force);
         forceUpdate(force);
@@ -65,3 +73,5 @@ Pressure.set('#leftPanel', {
     }
   }
   );
+
+
