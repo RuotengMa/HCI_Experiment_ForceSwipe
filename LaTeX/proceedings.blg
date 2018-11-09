@@ -1,0 +1,95 @@
+This is BibTeX, Version 0.99d (TeX Live 2017)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: proceedings.aux
+The style file: SIGCHI-Reference-Format.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: sample.bib
+Repeated entry---line 153 of file sample.bib
+ : @inproceedings{taher2014empirical
+ :                                  ,
+I'm skipping whatever remains of this entry
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--empty publisher in andersen2005simple
+Warning--empty address in andersen2005simple
+Warning--empty publisher in antoine2017forceedge
+Warning--empty address in antoine2017forceedge
+Warning--empty publisher in arthur2008evaluating
+Warning--empty address in arthur2008evaluating
+Warning--empty publisher in bial2010study
+Warning--empty address in bial2010study
+Warning--empty publisher in cockburn2012improving
+Warning--empty address in cockburn2012improving
+Warning--empty publisher in goguey2018improving
+Warning--empty address in goguey2018improving
+Warning--empty publisher in heo2011force
+Warning--empty address in heo2011force
+Warning--empty publisher in heo2011forcetap
+Warning--empty address in heo2011forcetap
+Warning--empty publisher in malacria2015push
+Warning--empty address in malacria2015push
+Warning--empty publisher in mandalapu2011exploring
+Warning--empty address in mandalapu2011exploring
+Warning--empty publisher in miyaki2009graspzoom
+Warning--empty address in miyaki2009graspzoom
+Warning--empty publisher in quinn2009zoofing
+Warning--empty address in quinn2009zoofing
+Warning--empty publisher in quinn2012exposing
+Warning--empty address in quinn2012exposing
+Warning--empty publisher in ramos2004pressure
+Warning--empty address in ramos2004pressure
+Warning--empty publisher in rendl2014presstures
+Warning--empty address in rendl2014presstures
+Warning--can't use both volume and number fields in sheik2013two
+Warning--empty publisher in sheik2013two
+Warning--empty address in sheik2013two
+Warning--empty publisher in smith2004radial
+Warning--empty address in smith2004radial
+Warning--empty publisher in surale2017experimental
+Warning--empty address in surale2017experimental
+Warning--empty publisher in taher2014empirical
+Warning--empty address in taher2014empirical
+Warning--empty publisher in takashima2015exploring
+Warning--empty address in takashima2015exploring
+You've used 22 entries,
+            5283 wiz_defined-function locations,
+            1340 strings with 19079 characters,
+and the built_in function-call counts, 21449 in all, are:
+= -- 2274
+> -- 711
+< -- 1
++ -- 232
+- -- 244
+* -- 1372
+:= -- 2290
+add.period$ -- 111
+call.type$ -- 22
+change.case$ -- 155
+chr.to.int$ -- 21
+cite$ -- 63
+duplicate$ -- 2141
+empty$ -- 1467
+format.name$ -- 300
+if$ -- 5138
+int.to.chr$ -- 2
+int.to.str$ -- 0
+missing$ -- 104
+newline$ -- 170
+num.names$ -- 131
+pop$ -- 971
+preamble$ -- 1
+purify$ -- 242
+quote$ -- 0
+skip$ -- 547
+stack$ -- 0
+substring$ -- 1815
+swap$ -- 214
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 198
+warning$ -- 41
+while$ -- 148
+width$ -- 0
+write$ -- 322
+(There was 1 error message)

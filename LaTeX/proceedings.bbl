@@ -1,0 +1,222 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{00}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{{\tt DOI:}\penalty0{#1}\ }
+  \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       #1{#1}          \fi
+
+\bibitem{aceituno2017design}
+{Jonathan Aceituno}, {Sylvain Malacria}, {Philip Quinn}, {Nicolas Roussel},
+  {Andy Cockburn}, {and} {G{\'e}ry Casiez}. 2017.
+\newblock \showarticletitle{The design, use, and performance of edge-scrolling
+  techniques}.
+\newblock {\em International Journal of Human-Computer Studies\/}  {97} (2017),
+  58--76.
+\newblock
+
+
+\bibitem{andersen2005simple}
+{Tue~Haste Andersen}. 2005.
+\newblock \showarticletitle{A simple movement time model for scrolling}. In
+  {\em CHI'05 Extended Abstracts on Human Factors in Computing Systems}. ACM,
+  1180--1183.
+\newblock
+
+
+\bibitem{antoine2017forceedge}
+{Axel Antoine}, {Sylvain Malacria}, {and} {G{\'e}ry Casiez}. 2017.
+\newblock \showarticletitle{ForceEdge: Controlling Autoscroll on Both Desktop
+  and Mobile Computers Using the Force}. In {\em Proceedings of the 2017 CHI
+  Conference on Human Factors in Computing Systems}. ACM, 3281--3292.
+\newblock
+
+
+\bibitem{arthur2008evaluating}
+{Kevin~Wayne Arthur}, {Nada Matic}, {and} {Paul Ausbeck}. 2008.
+\newblock \showarticletitle{Evaluating touch gestures for scrolling on notebook
+  computers}. In {\em CHI'08 Extended Abstracts on Human Factors in Computing
+  Systems}. ACM, 2943--2948.
+\newblock
+
+
+\bibitem{bial2010study}
+{Dominik Bial}, {Florian Block}, {and} {Hans Gellersen}. 2010.
+\newblock \showarticletitle{A study of two-handed scrolling and selection on
+  standard notebook computers}. In {\em Proceedings of the 24th BCS Interaction
+  Specialist Group Conference}. British Computer Society, 355--364.
+\newblock
+
+
+\bibitem{cockburn2012improving}
+{Andy Cockburn}, {Philip Quinn}, {Carl Gutwin}, {and} {Stephen Fitchett}. 2012.
+\newblock \showarticletitle{Improving scrolling devices with document length
+  dependent gain}. In {\em Proceedings of the SIGCHI Conference on Human
+  Factors in Computing Systems}. ACM, 267--276.
+\newblock
+
+
+\bibitem{goguey2018improving}
+{Alix Goguey}, {Sylvain Malacria}, {and} {Carl Gutwin}. 2018.
+\newblock \showarticletitle{Improving Discoverability and Expert Performance in
+  Force-Sensitive Text Selection for Touch Devices with Mode Gauges}. In {\em
+  Proceedings of the 2018 CHI Conference on Human Factors in Computing
+  Systems}. ACM, 477.
+\newblock
+
+
+\bibitem{heo2011force}
+{Seongkook Heo} {and} {Geehyuk Lee}. 2011a.
+\newblock \showarticletitle{Force gestures: augmenting touch screen gestures
+  with normal and tangential forces}. In {\em Proceedings of the 24th annual
+  ACM symposium on User interface software and technology}. ACM, 621--626.
+\newblock
+
+
+\bibitem{heo2011forcetap}
+{Seongkook Heo} {and} {Geehyuk Lee}. 2011b.
+\newblock \showarticletitle{Forcetap: extending the input vocabulary of mobile
+  touch screens by adding tap gestures}. In {\em Proceedings of the 13th
+  International Conference on Human Computer Interaction with Mobile Devices
+  and Services}. ACM, 113--122.
+\newblock
+
+
+\bibitem{malacria2015push}
+{Sylvain Malacria}, {Jonathan Aceituno}, {Philip Quinn}, {G{\'e}ry Casiez},
+  {Andy Cockburn}, {and} {Nicolas Roussel}. 2015.
+\newblock \showarticletitle{Push-Edge and Slide-Edge: Scrolling by Pushing
+  Against the Viewport Edge}. In {\em Proceedings of the 33rd Annual ACM
+  Conference on Human Factors in Computing Systems}. ACM, 2773--2776.
+\newblock
+
+
+\bibitem{mandalapu2011exploring}
+{Dinesh Mandalapu} {and} {Sriram Subramanian}. 2011.
+\newblock \showarticletitle{Exploring pressure as an alternative to multi-touch
+  based interaction}. In {\em Proceedings of the 3rd International Conference
+  on Human Computer Interaction}. ACM, 88--92.
+\newblock
+
+
+\bibitem{miyaki2009graspzoom}
+{Takashi Miyaki} {and} {Jun Rekimoto}. 2009.
+\newblock \showarticletitle{GraspZoom: zooming and scrolling control model for
+  single-handed mobile interaction}. In {\em Proceedings of the 11th
+  International Conference on Human-Computer Interaction with Mobile Devices
+  and Services}. ACM, 11.
+\newblock
+
+
+\bibitem{quinn2009zoofing}
+{Philip Quinn} {and} {Andy Cockburn}. 2009.
+\newblock \showarticletitle{Zoofing!: faster list selections with
+  pressure-zoom-flick-scrolling}. In {\em Proceedings of the 21st Annual
+  Conference of the Australian Computer-Human Interaction Special Interest
+  Group: Design: Open 24/7}. ACM, 185--192.
+\newblock
+
+
+\bibitem{quinn2012exposing}
+{Philip Quinn}, {Andy Cockburn}, {G{\'e}ry Casiez}, {Nicolas Roussel}, {and}
+  {Carl Gutwin}. 2012.
+\newblock \showarticletitle{Exposing and understanding scrolling transfer
+  functions}. In {\em Proceedings of the 25th annual ACM symposium on User
+  interface software and technology}. ACM, 341--350.
+\newblock
+
+
+\bibitem{ramos2004pressure}
+{Gonzalo Ramos}, {Matthew Boulos}, {and} {Ravin Balakrishnan}. 2004.
+\newblock \showarticletitle{Pressure widgets}. In {\em Proceedings of the
+  SIGCHI conference on Human factors in computing systems}. ACM, 487--494.
+\newblock
+
+
+\bibitem{rendl2014presstures}
+{Christian Rendl}, {Patrick Greindl}, {Kathrin Probst}, {Martin Behrens}, {and}
+  {Michael Haller}. 2014.
+\newblock \showarticletitle{Presstures: exploring pressure-sensitive
+  multi-touch gestures on trackpads}. In {\em Proceedings of the SIGCHI
+  Conference on Human Factors in Computing Systems}. ACM, 431--434.
+\newblock
+
+
+\bibitem{sheik2013two}
+{Mohamed Sheik-Nainar}, {Anna Ostberg}, {and} {Nada Matic}. 2013.
+\newblock \showarticletitle{Two-level Force Input on TouchPad and the Effects
+  of Feedback on Performance}. In {\em Proceedings of the Human Factors and
+  Ergonomics Society Annual Meeting}, Vol.~57. SAGE Publications Sage CA: Los
+  Angeles, CA, 1052--1056.
+\newblock
+
+
+\bibitem{smith2004radial}
+{Gary~M Smith} {and} {others}. 2004.
+\newblock \showarticletitle{The radial scroll tool: scrolling support for
+  stylus-or touch-based document navigation}. In {\em Proceedings of the 17th
+  annual ACM symposium on User interface software and technology}. ACM, 53--56.
+\newblock
+
+
+\bibitem{surale2017experimental}
+{Hemant~Bhaskar Surale}, {Fabrice Matulic}, {and} {Daniel Vogel}. 2017.
+\newblock \showarticletitle{Experimental analysis of mode switching techniques
+  in touch-based user interfaces}. In {\em Proceedings of the 2017 CHI
+  Conference on Human Factors in Computing Systems}. ACM, 3267--3280.
+\newblock
+
+
+\bibitem{taher2014empirical}
+{Faisal Taher}, {Jason Alexander}, {John Hardy}, {and} {Eduardo Velloso}. 2014.
+\newblock \showarticletitle{An empirical characterization of touch-gesture
+  input-force on mobile devices}. In {\em Proceedings of the Ninth ACM
+  International Conference on Interactive Tabletops and Surfaces}. ACM,
+  195--204.
+\newblock
+
+
+\bibitem{takashima2015exploring}
+{Kazuki Takashima}, {Nana Shinshi}, {and} {Yoshifumi Kitamura}. 2015.
+\newblock \showarticletitle{Exploring Boundless Scroll by Extending Motor
+  Space}. In {\em Proceedings of the 17th International Conference on
+  Human-Computer Interaction with Mobile Devices and Services}. ACM, 557--566.
+\newblock
+
+
+\bibitem{pressurejs}
+{Stuart Yamartino}. 2015.
+\newblock Pressure.js.
+\newblock   (2015).
+\newblock
+\newblock
+\shownote{\url{https://pressurejs.com/}.}
+
+
+\end{thebibliography}
