@@ -205,7 +205,7 @@ Pressure.set('#touchDetectArea', {
   );
 
 
-function genChapter(chapterNum){
+function genChapter(chapterNum, maxChapters, folder="01_animal" ,isTarget=false){
 
   minParagraphs = 50;
   rangeParagraphs = 30;
@@ -219,12 +219,23 @@ function genChapter(chapterNum){
       units: 'paragraphs',
       sentenceLowerBound: 5,
       sentenceUpperBound: 20,
-      paragraphLowerBound: 3,
-      paragraphUpperBound: 10,
+      paragraphLowerBound: 2,
+      paragraphUpperBound: 5,
+      format: 'plain'
+  }) + genRandomImage(folder, maxChapters, isTarget) + loremIpsum({
+      count: randParagraphs,
+      units: 'paragraphs',
+      sentenceLowerBound: 5,
+      sentenceUpperBound: 20,
+      paragraphLowerBound: 2,
+      paragraphUpperBound: 5,
       format: 'plain'
   });
 
-  liRandomText = "<div class='chContainer' id='ch"+chapterNum+"'><h2 class='chTitle'>Chapter " + chapterNum + "</h2>" + liRandomText + "</div>"
+  
+
+  liRandomText = "<br><br><br><br><br><div class='chContainer' id='ch"+chapterNum+"'> \
+  <hr><h2 class='chTitle'>Chapter " + chapterNum + "</h2><hr><br><br><br><br><br>" + liRandomText + "</div>"
 
 
   output = liRandomText;
@@ -233,13 +244,48 @@ function genChapter(chapterNum){
 }
 
 
+function genContent(){
+
+  minChapters = 10;
+  maxChapters = 20;
+
+  randChapterNum = Math.floor(Math.random() * (maxChapters-minChapters) + minChapters);
+
+  targetChapter = Math.floor(Math.random() * randChapterNum);
+
+  fullContent = "";
+  for(i = 0 ; i < randChapterNum ; i++){
+    if(i == targetChapter){
+      fullContent += genChapter(i+1, maxChapters,"01_animal",true)
+    }
+    else
+      fullContent += genChapter(i+1,maxChapters);
+  }
+
+
+  return fullContent;
+}
+
+function genRandomImage( folder, maxID, isTarget = false){
+  randImgNum =  Math.floor(Math.random() * maxID) + 1;
+
+  console.log("genRandomImage: " + randImgNum);
+
+  if(isTarget)
+    return "<img src='img/"+folder+"/target.jpg' id='targetImg' width='600' height='400'>";
+  else
+    return "<img src='img/"+folder+"/"+randImgNum+".jpg' width='600' height='400'>";
+}
+
 $(document).ready(function(){
 
-    output = genChapter(1) + genChapter(2) + genChapter(3);
-
-
+    output = genContent();
 
     $("#randomTextArea").html(output);
+
+    $("#targetImg").on("click", function(){
+       alert("target reached!");
+    })
 
 }); 
 
