@@ -244,19 +244,20 @@ function genChapter(chapterNum, maxChapters, folder="01_animal" ,isTarget=false)
 }
 
 
-function genContent(){
+function genContent(folder){
 
-  minChapters = 10;
-  maxChapters = 20;
+  minChapters = 3;
+  maxChapters = 4;
 
   randChapterNum = Math.floor(Math.random() * (maxChapters-minChapters) + minChapters);
 
   targetChapter = Math.floor(Math.random() * randChapterNum);
+  console.log("target chapter is " + targetChapter);
 
   fullContent = "";
   for(i = 0 ; i < randChapterNum ; i++){
     if(i == targetChapter){
-      fullContent += genChapter(i+1, maxChapters,"01_animal",true)
+      fullContent += genChapter(i+1, maxChapters,folder,true)
     }
     else
       fullContent += genChapter(i+1,maxChapters);
@@ -277,15 +278,95 @@ function genRandomImage( folder, maxID, isTarget = false){
     return "<img src='img/"+folder+"/"+randImgNum+".jpg' width='600' height='400'>";
 }
 
+function experimentSetup(){
+  /*
+    Setting up for new ID.
+
+  */
+
+
+
+
+}
+
+function experimentTerminate(){
+  /*
+      Show "Thank you" screen
+  */
+
+
+
+
+}
+
+function sessionSetup(){
+  /*
+      Setup content
+  */
+
+  folder = "01_animal";
+
+  output = genContent(folder);
+
+  $("#randomTextArea").html(output);
+
+  $("#targetImg").on("click", function(){
+      sessionTerminate();
+      if(sessionCount < sessionMax){
+        sessionSetup();
+      }
+      else{
+        experimentTerminate();
+      }
+  })
+
+  targetLocStr = "";
+  $(window).scrollTop($(document).height()/2);
+  if($("#targetImg").position().top > $(document).height()/2){
+    targetLocStr = "Scroll down for the target";
+  }
+  else{
+    targetLocStr = "Scroll up for the target"; 
+  }
+
+  console.log("start location : " + $(document).height()/2);
+  console.log("target location: " + $("#targetImg").position().top);
+
+
+  $("#ModalTitle").html("Current Session: ");
+  $("#ModalContent").html("Please find the target image: <br> <img src='./img/"+folder+"/target.jpg' width='300' height='200'><br>"+targetLocStr );
+  $("#experimentMessageModal").modal('show');
+
+  $(document).keypress(function(event){
+    if(event.key == 't'){
+      //$(document).scrollTop($("#targetImg").position().top);
+      duration = Math.abs($("#targetImg").position().top - $(window).scrollTop())/5;
+      console.log("duration : "  + duration);
+      $("html, body").stop().animate({scrollTop:$("#targetImg").position().top}, duration, 'swing', function() { });
+    }
+  });
+
+  //$("html, body").stop().animate({scrollTop:0}, 500, 'swing', function() { });
+
+}
+
+function sessionTerminate(){
+  /*
+      Record the data. 
+  */
+
+
+}
+
+sessionMax = 1;
+sessionCount = 0;
+
 $(document).ready(function(){
 
-    output = genContent();
-
-    $("#randomTextArea").html(output);
-
-    $("#targetImg").on("click", function(){
-       alert("target reached!");
-    })
-
+  experimentSetup();
+  sessionSetup();
+  
 }); 
+
+
 
