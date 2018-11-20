@@ -155,7 +155,7 @@ function ScrollToPrevChapter(){
   var prevChapterID = "#ch"+ (curChapterNum-1);
   targetPos = 0;
 
-  if(curChapter == 1)
+  if(curChapterNum == 1)
     targetPos = $(curChapterID).position().top;
   else
     targetPos = $(prevChapterID).position().top;
