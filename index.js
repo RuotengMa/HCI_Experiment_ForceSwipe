@@ -142,8 +142,11 @@ function getCurrentChapter(){
   }
 }
 
+scrollSpeed = 5; // px/ms
+
 function animateScroll(targetPos){
-      duration = Math.abs(targetPos - $(window).scrollTop())/5;
+      // v = distance/time = distance(px) / (distance/5) = 5 px/ms = 5000 px/s
+      duration = Math.abs(targetPos - $(window).scrollTop())/scrollSpeed;
       console.log("duration : "  + duration);
       $("html, body").stop().animate({scrollTop:targetPos}, duration, 'swing', function() { });
 }
@@ -454,7 +457,10 @@ function sessionStart(){
   sessionInfo = {
       startTime: Date.now(),
       endTime: null,
-      moveTrace: Array()
+      moveTrace: Array(), 
+      startPosition:$(window).scrollTop(), 
+      targetPosition:$("#targetImg").position().top,
+      scrollSpeed: scrollSpeed,
   };
 
 }
