@@ -367,7 +367,8 @@ function experimentTerminate(){
       recordText += ("Session " + index + ": " + (item.endTime - item.startTime) + "ms <br>");
   });
 
-  modalMsgSetup("Experiment End", "Thank you for participating the experiment<br>" + recordText, masterExperimentRun, "Next Participant");
+  hrefData = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(expRecord));
+  modalMsgSetup("Experiment End", "Thank you for participating the experiment<br><a href='"+hrefData+"' download='experiment.json'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Participant");
 }
 
 
