@@ -127,22 +127,60 @@ function getDirection(xMove, yMove){
 }
 
 function getCurrentChapter(){
-  var viewportTop = $(window).scrollTop();
-  var viewportBottom = viewportTop + $(window).height();
+  // Use center to detect center
 
+   var viewportCenter = $(window).scrollTop() + $(window).height()/2;
+
+  for(var i = 1 ; i <= randChapterNum ; i++){
+      iterChapter = "#ch"+i;
+      iterChapterTop = $(iterChapter).position().top;
+      iterChapterBottom = $(iterChapter).position().top + $(iterChapter).height();
+
+      if(viewportCenter > iterChapterTop && viewportCenter < iterChapterBottom){
+          return i;
+      }
+  }
+}
+
+function animateScroll(targetPos){
+      duration = Math.abs(targetPos - $(window).scrollTop())/5;
+      console.log("duration : "  + duration);
+      $("html, body").stop().animate({scrollTop:targetPos}, duration, 'swing', function() { });
+}
+
+
+function ScrollToPrevChapter(){
+  var curChapterNum = getCurrentChapter();
+  var curChapterID = "#ch"+ curChapterNum;
+  var prevChapterID = "#ch"+ (curChapterNum-1);
+  targetPos = 0;
+
+  if(curChapter == 1)
+    targetPos = $(curChapterID).position().top;
+  else
+    targetPos = $(prevChapterID).position().top;
+
+
+  animateScroll(targetPos);
+}
+
+function ScrollToNextChapter(){
 
 }
 
 
 function forceSwipeHandler(swpDir){
+
+  console.log("Current Chapter: " + getCurrentChapter());
+
   switch(swpDir){
     case DIRECTION.LEFT:
       console.log("Navigate to previous chapter");
-      //PrevChapter();
+      ScrollToPrevChapter();
       break;
     case DIRECTION.RIGHT:
       console.log("Navigate to next chapter");
-      //NextChapter();
+      ScrollToNextChapter();
       break;
     default:
       console.log("...");
@@ -461,7 +499,8 @@ function setConfig(){
   sessionMax = 2;
   sessionCount = 0;
   minChapters = 3;
-  maxChapters = 4;  
+  maxChapters = 4; 
+  randChapterNum = null; 
 }
 
 function initRecord(){
