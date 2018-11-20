@@ -119,7 +119,7 @@ function getDirection(xMove, yMove){
       return DIRECTION.LEFT;
   }
   else{
-    if(yMove > 0)
+    if(yMove < 0)
       return DIRECTION.UP;
     else
       return DIRECTION.DOWN;
@@ -165,7 +165,18 @@ function ScrollToPrevChapter(){
 }
 
 function ScrollToNextChapter(){
+  var curChapterNum = getCurrentChapter();
+  var curChapterID = "#ch"+ curChapterNum;
+  var nextChapterID = "#ch"+ (curChapterNum+1);
+  targetPos = 0;
 
+  if(curChapterNum == randChapterNum)
+    targetPos = $(document).height() - $(window).height();
+  else
+    targetPos = $(nextChapterID).position().top;
+
+
+  animateScroll(targetPos);
 }
 
 
@@ -175,10 +186,12 @@ function forceSwipeHandler(swpDir){
 
   switch(swpDir){
     case DIRECTION.LEFT:
+    case DIRECTION.UP:
       console.log("Navigate to previous chapter");
       ScrollToPrevChapter();
       break;
     case DIRECTION.RIGHT:
+    case DIRECTION.DOWN:
       console.log("Navigate to next chapter");
       ScrollToNextChapter();
       break;
