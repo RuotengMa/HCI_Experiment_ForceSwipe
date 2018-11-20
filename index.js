@@ -243,28 +243,43 @@ function genChapter(chapterNum, maxChapters, folder="01_animal" ,isTarget=false)
   return output;
 }
 
+function withinView(targetTop, targetHeight, viewTop){
+
+  targetBottom = targetTop + targetHeight;
+  if( targetTop > viewTop && targetTop < viewTop + $(window).height())
+    return true;
+
+  if( targetBottom > viewTop && targetBottom < viewTop + $(window).height())
+    return true;
+
+  return false;
+}
+
+
+function sessionStartPos(){
+  return $(document).height()/2;
+}
+
 
 function genContent(folder){
 
-  minChapters = 3;
-  maxChapters = 4;
+  while(true){
 
-  randChapterNum = Math.floor(Math.random() * (maxChapters-minChapters) + minChapters);
+    randChapterNum = Math.floor(Math.random() * (maxChapters-minChapters) + minChapters);
+    targetChapter = Math.floor(Math.random() * randChapterNum);
+    console.log("target chapter is " + targetChapter);
 
-  targetChapter = Math.floor(Math.random() * randChapterNum);
-  console.log("target chapter is " + targetChapter);
-
-  fullContent = "";
-  for(i = 0 ; i < randChapterNum ; i++){
-    if(i == targetChapter){
-      fullContent += genChapter(i+1, maxChapters,folder,true)
+    fullContent = "";
+    for(i = 0 ; i < randChapterNum ; i++){
+      fullContent += genChapter(i+1, maxChapters,folder, (i == targetChapter));
     }
-    else
-      fullContent += genChapter(i+1,maxChapters);
+
+    $("#randomTextArea").html(fullContent);
+
+    if(!withinView($("#targetImg").position().top, $("#targetImg").height(), sessionStartPos()))
+      break;
   }
 
-
-  return fullContent;
 }
 
 function genRandomImage( folder, maxID, isTarget = false){
@@ -275,68 +290,62 @@ function genRandomImage( folder, maxID, isTarget = false){
   if(isTarget)
     return "<img src='img/"+folder+"/target.jpg' id='targetImg' width='600' height='400'>";
   else
-    return "<img src='img/"+folder+"/"+randImgNum+".jpg' width='600' height='400'>";
+    return ""; // No image other than the target
+    //return "<img src='img/"+folder+"/"+randImgNum+".jpg' width='600' height='400'>";
 }
 
 function experimentSetup(){
   /*
     Setting up for new ID.
-
   */
-
-
-
-
+  expRecord.push(Array());
+  sessionCount = 0;
+  modalMsgSetup("Experiment Start", " description for the experiment goes here", sessionSetup, "Start the experiment");
 }
 
 function experimentTerminate(){
   /*
-      Show "Thank you" screen
+      Show "Thank you" screen, 
   */
 
+  recordText = "";
+  expRecord[expRecord.length - 1].forEach(function(item, index, array){
+      recordText += ("Session " + index + ": " + (item.endTime - item.startTime) + "ms <br>");
+  });
 
-
-
+  modalMsgSetup("Experiment End", "Thank you for participating the experiment<br>" + recordText, masterExperimentRun, "Next Participant");
 }
 
-function sessionSetup(){
-  /*
-      Setup content
-  */
 
-  folder = "01_animal";
-
-  output = genContent(folder);
-
-  $("#randomTextArea").html(output);
+function targetResponseSetup(){
 
   $("#targetImg").on("click", function(){
       sessionTerminate();
       if(sessionCount < sessionMax){
-        sessionSetup();
+        modalMsgSetup("Session End", "You found the target, ready for the next one?", sessionSetup, "Next Session");
+        //sessionSetup();
       }
       else{
         experimentTerminate();
       }
-  })
+  });
 
-  targetLocStr = "";
-  $(window).scrollTop($(document).height()/2);
-  if($("#targetImg").position().top > $(document).height()/2){
-    targetLocStr = "Scroll down for the target";
-  }
-  else{
-    targetLocStr = "Scroll up for the target"; 
-  }
+}
 
-  console.log("start location : " + $(document).height()/2);
-  console.log("target location: " + $("#targetImg").position().top);
+function modalMsgSetup(title, msg, callback, buttonMsg){
 
-
-  $("#ModalTitle").html("Current Session: ");
-  $("#ModalContent").html("Please find the target image: <br> <img src='./img/"+folder+"/target.jpg' width='300' height='200'><br>"+targetLocStr );
+  $("#ModalTitle").html(title );
+  $("#ModalContent").html(msg );
+  $("#modalClose").html(buttonMsg);
   $("#experimentMessageModal").modal('show');
 
+  //$("#modalClose").click(callback);
+  $("#experimentMessageModal").off('hidden.bs.modal');
+  $("#experimentMessageModal").on('hidden.bs.modal', callback);
+  //$("#modalClose").click(function(){sessionStart();});
+}
+
+function debugKeySetup(){
   $(document).keypress(function(event){
     if(event.key == 't'){
       //$(document).scrollTop($("#targetImg").position().top);
@@ -345,9 +354,92 @@ function sessionSetup(){
       $("html, body").stop().animate({scrollTop:$("#targetImg").position().top}, duration, 'swing', function() { });
     }
   });
+}
 
-  //$("html, body").stop().animate({scrollTop:0}, 500, 'swing', function() { });
+function targetDescription(){
+  targetLocStr = "";
+  $(window).scrollTop(sessionStartPos());
+  if($("#targetImg").position().top > sessionStartPos()){
+    targetLocStr = "Scroll DOWN for the target";
+  }
+  else{
+    targetLocStr = "Scroll UP for the target"; 
+  }
 
+  console.log("start location : " + sessionStartPos());
+  console.log("target location: " + $("#targetImg").position().top);
+
+  return "Please find the target image: <br> <img src='./img/"+folder+"/target.jpg' width='300' height='200'><br>"+targetLocStr;
+}
+
+function sessionSetup(){
+  /*
+      Setup content
+  */
+
+  folder = "01_animal";
+  output = genContent(folder);
+
+  sessionCount += 1;
+
+  targetResponseSetup();
+  modalMsgSetup("Session " + sessionCount  ,  targetDescription() , sessionStart, "Start Session");
+  debugKeySetup();
+}
+
+
+
+function sessionStart(){
+  console.log("session start");
+
+  traceTimeUpdate = Array();
+  traceTimeBase = Date.now();
+  $(window).off("scroll");
+  $(window).scroll(function(){
+    sessionInfo.moveTrace.push($(window).scrollTop());
+    traceTimeUpdate.push(Date.now()-traceTimeBase);
+  });
+
+  sessionInfo = {
+      startTime: Date.now(),
+      endTime: null,
+      moveTrace: Array()
+  };
+
+}
+
+function drawMoveTrace(){
+
+    if(traceLineChart != null)
+      traceLineChart.destroy();
+
+    var ctx = document.getElementById("traceLineChart");
+
+    traceLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: traceTimeUpdate,
+              datasets: [{
+                label:"Movement Trace",
+                data:sessionInfo.moveTrace,
+                borderColor: "#3e95cd",
+                fill:false
+              }]
+            },
+            options: {  responsive:false, 
+                        animation:{duration:0},
+                        scales:{
+                          yAxes:[{
+                            ticks:{
+                              max:$(document).height(),
+                              min:0,
+                            }
+                          }]
+                        }
+                      }
+    });
+
+    traceLineChart.update(0);
 }
 
 function sessionTerminate(){
@@ -355,17 +447,43 @@ function sessionTerminate(){
       Record the data. 
   */
 
+  sessionInfo.endTime = Date.now();
+  expRecord[expRecord.length - 1].push(sessionInfo);
 
+  drawMoveTrace();
+
+  console.log("session time : " + (sessionInfo.endTime - sessionInfo.startTime)/1000 + "s");
+  debugMsg("session time : " + (sessionInfo.endTime - sessionInfo.startTime)/1000 + "s");
 }
 
-sessionMax = 1;
-sessionCount = 0;
+
+function setConfig(){
+  sessionMax = 2;
+  sessionCount = 0;
+  minChapters = 3;
+  maxChapters = 4;  
+}
+
+function initRecord(){
+  expRecord = Array();
+  traceLineChart = null;
+}
+
+function masterExperimentSetup(){
+  setConfig();
+  initRecord();
+}
+
+function masterExperimentRun(){
+  /* potentially this could determine if we should continue run a new experiment or not */
+  experimentSetup();
+}
+
+
 
 $(document).ready(function(){
-
-  experimentSetup();
-  sessionSetup();
-  
+  masterExperimentSetup();
+  masterExperimentRun();
 }); 
 
 
