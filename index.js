@@ -142,7 +142,7 @@ function getCurrentChapter(){
   }
 }
 
-scrollSpeed = 5; // px/ms
+
 
 function animateScroll(targetPos){
       // v = distance/time = distance(px) / (distance/5) = 5 px/ms = 5000 px/s
@@ -361,14 +361,19 @@ function experimentTerminate(){
   /*
       Show "Thank you" screen, 
   */
+  curExperiment += 1;
+
+
 
   recordText = "";
   expRecord[expRecord.length - 1].forEach(function(item, index, array){
       recordText += ("Session " + index + ": " + (item.endTime - item.startTime) + "ms <br>");
   });
 
+  downloadFilename = 'FS_' + curParticipant + '_' + expParams[curExperiment-1].expName + '.json';
+
   hrefData = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(expRecord));
-  modalMsgSetup("Experiment End", "Thank you for participating the experiment<br><a href='"+hrefData+"' download='experiment.json'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Participant");
+  modalMsgSetup("Experiment End", "experiment "+ (curExperiment) + "/" + expParams.length + "done, <br><a href='"+hrefData+"' download='"+downloadFilename+"'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Experiment");
 }
 
 
@@ -514,13 +519,36 @@ function sessionTerminate(){
   debugMsg("session time : " + (sessionInfo.endTime - sessionInfo.startTime)/1000 + "s");
 }
 
+var TECH = Object.freeze({"TD":1, "FS": 2, "FP":3});
+
+
 
 function setConfig(){
   sessionMax = 2;
   sessionCount = 0;
   minChapters = 3;
   maxChapters = 4; 
+  scrollSpeed = 5; // px/ms
   randChapterNum = null; 
+
+  curExperiment = 0;
+
+  expParams = [
+    { 
+      "expName": "Traditional",
+      "technique": TECH.TD,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,
+    },
+    {
+      "expName": "ForceScroll",
+      "technique": TECH.FS,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,
+    },
+  ];
 }
 
 function initRecord(){
@@ -535,14 +563,27 @@ function masterExperimentSetup(){
 
 function masterExperimentRun(){
   /* potentially this could determine if we should continue run a new experiment or not */
-  experimentSetup();
+  if(curExperiment < expParams.length )
+    experimentSetup();
+  else
+    thankParticipant();
+}
+
+function thankParticipant(){
+  modalMsgSetup("Experiment End", "Thank you for participating in the experiment.", newParticipant, "Next Participant");
 }
 
 
+function newParticipant(){
+  curParticipant += 1;
+
+  masterExperimentSetup();
+  masterExperimentRun();  
+}
 
 $(document).ready(function(){
-  masterExperimentSetup();
-  masterExperimentRun();
+  curParticipant = 0;
+  newParticipant();
 }); 
 
 
