@@ -349,12 +349,28 @@ function genRandomImage( folder, maxID, isTarget = false){
 }
 
 function experimentSetup(){
-  /*
-    Setting up for new ID.
-  */
+
+
+  /* expParams = [
+    {
+      "expName": "TestSession",
+      "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,      
+    },*/
+
+  minChapters = expParams[curExperiment].minChapters;
+  maxChapters = expParams[curExperiment].maxChapters;
+  scrollSpeed = expParams[curExperiment].scrollSpeed;
+
   expRecord.push(Array());
   sessionCount = 0;
-  modalMsgSetup("Experiment Start", " description for the experiment goes here", sessionSetup, "Start the experiment");
+  modalMsgSetup("Experiment " + curExperiment+ " Start", " description for the experiment goes here", sessionSetup, "Start the experiment");
+
+
+  $("#forceBar").toggle(expParams[curExperiment].showForceBar);
+
 }
 
 function experimentTerminate(){
@@ -370,7 +386,7 @@ function experimentTerminate(){
       recordText += ("Session " + index + ": " + (item.endTime - item.startTime) + "ms <br>");
   });
 
-  downloadFilename = 'FS_' + curParticipant + '_' + expParams[curExperiment-1].expName + '.json';
+  downloadFilename = 'FS_P' + curParticipant + '_' + expParams[curExperiment-1].expName + '.json';
 
   hrefData = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(expRecord));
   modalMsgSetup("Experiment End", "experiment "+ (curExperiment) + "/" + expParams.length + "done, <br><a href='"+hrefData+"' download='"+downloadFilename+"'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Experiment");
@@ -381,18 +397,24 @@ function targetResponseSetup(){
 
   $("#targetImg").on("click", function(){
       sessionTerminate();
-      if(sessionCount < sessionMax){
-        modalMsgSetup("Session End", "You found the target, ready for the next one?", sessionSetup, "Next Session");
-        //sessionSetup();
+
+      if(expParams[curExperiment].technique == TECH.TEST){
+        modalMsgSetup("Session End", "You found the target. Do you want to practice more?", sessionSetup, "Try Again", experimentTerminate ,"Start");
       }
       else{
-        experimentTerminate();
+        if(sessionCount < sessionMax){
+          modalMsgSetup("Session End", "You found the target, ready for the next one?", sessionSetup, "Next Session");
+          //sessionSetup();
+        }
+        else{
+          experimentTerminate();
+        }
       }
   });
 
 }
 
-function modalMsgSetup(title, msg, callback, buttonMsg){
+function modalMsgSetup(title, msg, callback, buttonMsg, callback2 = null ,buttonMsg2 = ""){
 
   $("#ModalTitle").html(title );
   $("#ModalContent").html(msg );
@@ -403,6 +425,21 @@ function modalMsgSetup(title, msg, callback, buttonMsg){
   $("#experimentMessageModal").off('hidden.bs.modal');
   $("#experimentMessageModal").on('hidden.bs.modal', callback);
   //$("#modalClose").click(function(){sessionStart();});
+
+  $("#modalTry").html(buttonMsg2);
+  if(buttonMsg2 == "")
+    $("#modalTry").hide();
+  else{
+    $("#modalTry").show();
+  
+    $("#modalTry").on("click", function(){
+      console.log("modalTry clicked");
+      $("#experimentMessageModal").off('hidden.bs.modal');
+      $("#experimentMessageModal").on('hidden.bs.modal', callback2); 
+      $("#experimentMessageModal").modal('hide');
+    });
+
+  }
 }
 
 function debugKeySetup(){
@@ -420,10 +457,10 @@ function targetDescription(){
   targetLocStr = "";
   $(window).scrollTop(sessionStartPos());
   if($("#targetImg").position().top > sessionStartPos()){
-    targetLocStr = "Scroll DOWN for the target";
+    targetLocStr = "Scroll <strong>DOWN</strong> for the target";
   }
   else{
-    targetLocStr = "Scroll UP for the target"; 
+    targetLocStr = "Scroll <strong>UP</strong> for the target"; 
   }
 
   console.log("start location : " + sessionStartPos());
@@ -519,7 +556,8 @@ function sessionTerminate(){
   debugMsg("session time : " + (sessionInfo.endTime - sessionInfo.startTime)/1000 + "s");
 }
 
-var TECH = Object.freeze({"TD":1, "FS": 2, "FP":3});
+var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
+
 
 
 
@@ -534,12 +572,29 @@ function setConfig(){
   curExperiment = 0;
 
   expParams = [
+    {
+      "expName": "TestSession",
+      "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+    },
     { 
       "expName": "Traditional",
       "technique": TECH.TD,
       "minChapters": 3,
       "maxChapters": 4,
       "scrollSpeed": 5,
+      "showForceBar": false,
+    },
+    {
+      "expName": "TestSession",
+      "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,      
+      "showForceBar": true,
     },
     {
       "expName": "ForceScroll",
@@ -547,6 +602,7 @@ function setConfig(){
       "minChapters": 3,
       "maxChapters": 4,
       "scrollSpeed": 5,
+      "showForceBar": false,
     },
   ];
 }
@@ -576,6 +632,7 @@ function thankParticipant(){
 
 function newParticipant(){
   curParticipant += 1;
+  curExperiment = 0;
 
   masterExperimentSetup();
   masterExperimentRun();  
