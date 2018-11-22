@@ -484,7 +484,16 @@ function sessionSetup(){
   debugKeySetup();
 }
 
-
+function chapterLocationInfo(){
+  
+  var chpLocInfo = Array();
+  for(var i = 1 ; i <= randChapterNum ; i++){
+      iterChapter = "#ch"+i;
+      iterChapterTop = $(iterChapter).position().top;      
+      chpLocInfo.push(iterChapterTop);
+  }
+  return chpLocInfo;
+}
 
 function sessionStart(){
   console.log("session start");
@@ -494,6 +503,7 @@ function sessionStart(){
   $(window).off("scroll");
   $(window).scroll(function(){
     sessionInfo.moveTrace.push($(window).scrollTop());
+    sessionInfo.moveTraceTime.push(Date.now()-traceTimeBase);
     traceTimeUpdate.push(Date.now()-traceTimeBase);
   });
 
@@ -501,9 +511,13 @@ function sessionStart(){
       startTime: Date.now(),
       endTime: null,
       moveTrace: Array(), 
+      moveTraceTime: Array(),
       startPosition:$(window).scrollTop(), 
       targetPosition:$("#targetImg").position().top,
       scrollSpeed: scrollSpeed,
+      chapterLocation:chapterLocationInfo(),
+      documentHeight:$(document).height(),
+      windowHeight:$(window).height(),
   };
 
 }
@@ -547,6 +561,7 @@ function sessionTerminate(){
       Record the data. 
   */
 
+  $(window).off("scroll");
   sessionInfo.endTime = Date.now();
   expRecord[expRecord.length - 1].push(sessionInfo);
 
@@ -575,6 +590,22 @@ function setConfig(){
     {
       "expName": "TestSession",
       "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+    },
+    { 
+      "expName": "Traditional",
+      "technique": TECH.TD,
+      "minChapters": 3,
+      "maxChapters": 4,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+    },
+    { 
+      "expName": "Traditional",
+      "technique": TECH.TD,
       "minChapters": 3,
       "maxChapters": 4,
       "scrollSpeed": 5,
@@ -619,6 +650,7 @@ function masterExperimentSetup(){
 
 function masterExperimentRun(){
   /* potentially this could determine if we should continue run a new experiment or not */
+  initRecord(); 
   if(curExperiment < expParams.length )
     experimentSetup();
   else
