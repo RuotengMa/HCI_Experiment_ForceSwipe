@@ -446,9 +446,8 @@ function debugKeySetup(){
   $(document).keypress(function(event){
     if(event.key == 't'){
       //$(document).scrollTop($("#targetImg").position().top);
-      duration = Math.abs($("#targetImg").position().top - $(window).scrollTop())/5;
-      console.log("duration : "  + duration);
-      $("html, body").stop().animate({scrollTop:$("#targetImg").position().top}, duration, 'swing', function() { });
+
+      animateScroll($("#targetImg").position().top);
     }
   });
 }
@@ -669,6 +668,17 @@ function newParticipant(){
   masterExperimentSetup();
   masterExperimentRun();  
 }
+
+// Using code snippet from Tom Bates @ stackOverflow: 
+// https://stackoverflow.com/questions/8858994/let-user-scrolling-stop-jquery-animation-of-scrolltop
+// Stop the animation if the user scrolls. Defaults on .stop() should be fine
+$('html, body').bind("scroll mousedown DOMMouseScroll mousewheel", function(e){
+    console.log("hello smDMSmkup");
+    if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
+        console.log("hello smDMSmkup inside loop");
+         $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
+    }
+});     
 
 $(document).ready(function(){
   curParticipant = 0;
