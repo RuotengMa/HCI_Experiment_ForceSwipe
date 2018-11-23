@@ -151,8 +151,14 @@ function animateScroll(targetPos){
       $("html, body").stop().animate({scrollTop:targetPos}, duration, 'swing', function() { });
 }
 
+var INTERACTION = Object.freeze({"normalScroll":0,"fsPrev":2,"fsNext":3, "fpPrev":4, "fpNext":5, "mouseDown":6});
+
 
 function ScrollToPrevChapter(){
+  sessionInfo.interactionLog.push(INTERACTION.fsPrev);
+  sessionInfo.interactionLog.push(Date.now())
+  console.log("INTERACTION - fsPrev");
+
   var curChapterNum = getCurrentChapter();
   var curChapterID = "#ch"+ curChapterNum;
   var prevChapterID = "#ch"+ (curChapterNum-1);
@@ -172,6 +178,10 @@ function ScrollToPrevChapter(){
 }
 
 function ScrollToNextChapter(){
+  sessionInfo.interactionLog.push(INTERACTION.fsNext);
+  sessionInfo.interactionLog.push(Date.now())
+  console.log("INTERACTION - fsNext");
+
   var curChapterNum = getCurrentChapter();
   var curChapterID = "#ch"+ curChapterNum;
   var nextChapterID = "#ch"+ (curChapterNum+1);
@@ -500,7 +510,7 @@ function chapterLocationInfo(){
 
 function sessionStart(){
   console.log("session start");
-
+  inSession = true;
   traceTimeUpdate = Array();
   traceTimeBase = Date.now();
   $(window).off("scroll");
@@ -515,6 +525,8 @@ function sessionStart(){
       endTime: null,
       moveTrace: Array(), 
       moveTraceTime: Array(),
+      interactionLog:Array(),
+      interactionLogTime:Array(),
       startPosition:$(window).scrollTop(), 
       targetPosition:$("#targetImg").position().top,
       scrollSpeed: scrollSpeed,
@@ -563,6 +575,7 @@ function sessionTerminate(){
   /*
       Record the data. 
   */
+  inSession = false;
 
   $(window).off("scroll");
   sessionInfo.endTime = Date.now();
@@ -668,6 +681,7 @@ function setConfig(){
 function initRecord(){
   expRecord = Array();
   traceLineChart = null;
+  inSession = false;
 }
 
 function masterExperimentSetup(){
@@ -708,9 +722,12 @@ function stopAnimation(){
 
 
 $('html, body').on("scroll mousedown DOMMouseScroll mousewheel", function(e){
-    console.log("hello smDMSmkup");
+  if( inSession ){
+    sessionInfo.interactionLog.push(INTERACTION.mouseDown );
+    sessionInfo.interactionLog.push(Date.now())
+    console.log("INTERACTION - mouseDown");
+  }
     if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
-        console.log("hello smDMSmkup inside loop");
          $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
     }
 });     
