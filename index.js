@@ -366,7 +366,7 @@ function experimentSetup(){
 
   expRecord.push(Array());
   sessionCount = 0;
-  modalMsgSetup("Experiment " + curExperiment+ " Start", " description for the experiment goes here", sessionSetup, "Start the experiment");
+  modalMsgSetup("Experiment " + curExperiment+ " Start", expParams[curExperiment].expDesc , sessionSetup, "Start the experiment");
 
 
   $("#forceBar").toggle(expParams[curExperiment].showForceBar);
@@ -576,7 +576,7 @@ var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
 
 
 function setConfig(){
-  sessionMax = 2;
+  sessionMax = 10;
   sessionCount = 0;
   minChapters = 3;
   maxChapters = 4; 
@@ -588,50 +588,74 @@ function setConfig(){
   expParams = [
     {
       "expName": "TestSession",
+      "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
       "technique": TECH.TEST,
       "minChapters": 3,
-      "maxChapters": 4,
-      "scrollSpeed": 5,
+      "maxChapters": 5,
+      "scrollSpeed": 3,
       "showForceBar": false,
     },
     { 
       "expName": "Traditional",
+      "expDesc": "In this session, only traditional scrolling can be used to locate the target image.",
       "technique": TECH.TD,
       "minChapters": 3,
-      "maxChapters": 4,
-      "scrollSpeed": 5,
-      "showForceBar": false,
-    },
-    { 
-      "expName": "Traditional",
-      "technique": TECH.TD,
-      "minChapters": 3,
-      "maxChapters": 4,
-      "scrollSpeed": 5,
-      "showForceBar": false,
-    },
-    { 
-      "expName": "Traditional",
-      "technique": TECH.TD,
-      "minChapters": 3,
-      "maxChapters": 4,
+      "maxChapters": 5,
       "scrollSpeed": 5,
       "showForceBar": false,
     },
     {
       "expName": "TestSession",
+      "expDesc": "This is a practice session to get you familiar with forceScroll.", 
       "technique": TECH.TEST,
       "minChapters": 3,
-      "maxChapters": 4,
-      "scrollSpeed": 5,      
-      "showForceBar": true,
+      "maxChapters": 5,
+      "scrollSpeed": 3,      
+      "showForceBar": false,
     },
     {
       "expName": "ForceScroll",
+      "expDesc": "In this session, you can use both traditional scrolling and forceScroll to locate the target image.",
       "technique": TECH.FS,
       "minChapters": 3,
-      "maxChapters": 4,
+      "maxChapters": 5,
+      "scrollSpeed": 3,
+      "showForceBar": false,
+    },
+    {
+      "expName": "TestSession",
+      "expDesc": "This is a test session to get you familiar with a different force scrolling speed. The same forceScroll technique is used, with a different speed.", 
+      "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,      
+      "showForceBar": false,
+    },
+    {
+      "expName": "ForceScroll",
+      "expDesc": "The same forceScroll technique is used, with a different speed.", 
+      "technique": TECH.FS,
+      "minChapters": 3,
+      "maxChapters": 5,
       "scrollSpeed": 5,
+      "showForceBar": false,
+    },
+    {
+      "expName": "TestSession",
+      "expDesc": "This is a test session to get you familiar with a different force scrolling speed. The same forceScroll technique is used, with a different speed.", 
+      "technique": TECH.TEST,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 7,      
+      "showForceBar": false,
+    },
+    {
+      "expName": "ForceScroll",
+      "expDesc": "The same forceScroll technique is used, with a different speed.", 
+      "technique": TECH.FS,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 7,
       "showForceBar": false,
     },
   ];
@@ -672,7 +696,14 @@ function newParticipant(){
 // Using code snippet from Tom Bates @ stackOverflow: 
 // https://stackoverflow.com/questions/8858994/let-user-scrolling-stop-jquery-animation-of-scrolltop
 // Stop the animation if the user scrolls. Defaults on .stop() should be fine
-$('html, body').bind("scroll mousedown DOMMouseScroll mousewheel", function(e){
+// bind is replaced with on since from jQuery 3.0 bind is deprecated
+
+function stopAnimation(){
+
+}
+
+
+$('html, body').on("scroll mousedown DOMMouseScroll mousewheel", function(e){
     console.log("hello smDMSmkup");
     if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
         console.log("hello smDMSmkup inside loop");
