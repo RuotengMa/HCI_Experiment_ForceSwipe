@@ -158,11 +158,15 @@ function ScrollToPrevChapter(){
   var prevChapterID = "#ch"+ (curChapterNum-1);
   targetPos = 0;
 
-  if(curChapterNum == 1)
+  if( $(curChapterID).position().top < $(window).scrollTop() ){
     targetPos = $(curChapterID).position().top;
-  else
-    targetPos = $(prevChapterID).position().top;
-
+  }
+  else{
+    if(curChapterNum == 1)
+      targetPos = $(curChapterID).position().top;
+    else
+      targetPos = $(prevChapterID).position().top;
+  }
 
   animateScroll(targetPos);
 }
