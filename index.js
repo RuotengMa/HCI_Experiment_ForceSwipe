@@ -720,8 +720,18 @@ function stopAnimation(){
 
 }
 
+$('html, body').on("scroll", function(e){
+  if( inSession ){
+    sessionInfo.interactionLog.push(INTERACTION.normalScroll );
+    sessionInfo.interactionLog.push(Date.now())
+    console.log("INTERACTION - normalScroll");
+  }
+  if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
+      $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
+  }  
+});
 
-$('html, body').on("scroll mousedown DOMMouseScroll mousewheel", function(e){
+$('html, body').on("mousedown DOMMouseScroll mousewheel", function(e){
   if( inSession ){
     sessionInfo.interactionLog.push(INTERACTION.mouseDown );
     sessionInfo.interactionLog.push(Date.now())
