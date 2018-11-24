@@ -156,7 +156,7 @@ var INTERACTION = Object.freeze({"normalScroll":0,"fsPrev":2,"fsNext":3, "fpPrev
 
 function ScrollToPrevChapter(){
   sessionInfo.interactionLog.push(INTERACTION.fsPrev);
-  sessionInfo.interactionLog.push(Date.now())
+  sessionInfo.interactionLogTime.push(Date.now())
   console.log("INTERACTION - fsPrev");
 
   var curChapterNum = getCurrentChapter();
@@ -179,7 +179,7 @@ function ScrollToPrevChapter(){
 
 function ScrollToNextChapter(){
   sessionInfo.interactionLog.push(INTERACTION.fsNext);
-  sessionInfo.interactionLog.push(Date.now())
+  sessionInfo.interactionLogTime.push(Date.now())
   console.log("INTERACTION - fsNext");
 
   var curChapterNum = getCurrentChapter();
@@ -720,10 +720,10 @@ function stopAnimation(){
 
 }
 
-$('html, body').on("scroll", function(e){
+$('body').on("DOMMouseScroll mousewheel", function(e){
   if( inSession ){
     sessionInfo.interactionLog.push(INTERACTION.normalScroll );
-    sessionInfo.interactionLog.push(Date.now())
+    sessionInfo.interactionLogTime.push(Date.now())
     console.log("INTERACTION - normalScroll");
   }
   if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
@@ -731,10 +731,10 @@ $('html, body').on("scroll", function(e){
   }  
 });
 
-$('html, body').on("mousedown DOMMouseScroll mousewheel", function(e){
+$('body').on("mousedown", function(e){
   if( inSession ){
     sessionInfo.interactionLog.push(INTERACTION.mouseDown );
-    sessionInfo.interactionLog.push(Date.now())
+    sessionInfo.interactionLogTime.push(Date.now())
     console.log("INTERACTION - mouseDown");
   }
     if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
