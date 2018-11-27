@@ -56,7 +56,7 @@ $("#touchDetectArea").on("mousedown", function(e){
   yTraverse = yUp - yDown;
   timeElapsed = tUp - tDown;
 
-  if ((Math.abs(xTraverse) > 30 || Math.abs(yTraverse) > 30 ) && (timeElapsed < 2000))  {
+  if ((Math.abs(xTraverse) > 30 || Math.abs(yTraverse) > 30 ) && (timeElapsed < 1000))  {
     console.log("swipe detected!");
 
     swipeHandler(xTraverse, yTraverse);
@@ -634,7 +634,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,      
       "showForceBar": false,
-      "forceStart": 0.2,
+      "forceStart": 0.3,
     },
     {
       "expName": "ForceScroll",
@@ -644,7 +644,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,
       "showForceBar": false,
-      "forceStart": 0.2,
+      "forceStart": 0.3,
     },
     {
       "expName": "TestSession",
@@ -654,7 +654,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,      
       "showForceBar": false,
-      "forceStart": 0.3,
+      "forceStart": 0.4,
     },
     {
       "expName": "ForceScroll",
