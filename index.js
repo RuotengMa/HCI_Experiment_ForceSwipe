@@ -40,72 +40,86 @@ $("#forceBar_toggle").on("click", function(e){
     $("#forceBar").toggle();
 });
 
-
+curExpriment = null;
 $("#touchDetectArea").on("mousedown", function(e){
+  if(curExperiment == null){
+
+  }
+  else if( expParams[curExperiment].technique == TECH.FP ){
+
+  }
+
   debugMsg("mouse down detected");
   xDown = e.pageX;
   yDown = e.pageY;
   tDown = Date.now();
 })
 .on("mouseup", function(e){
-  xUp = e.pageX;
-  yUp = e.pageY;
-  tUp = Date.now();
 
-  xTraverse = xUp - xDown;
-  yTraverse = yUp - yDown;
-  timeElapsed = tUp - tDown;
+  if(curExperiment == null){
 
-  if ((Math.abs(xTraverse) > 30 || Math.abs(yTraverse) > 30 ) && (timeElapsed < 1000))  {
-    console.log("swipe detected!");
-
-    swipeHandler(xTraverse, yTraverse);
   }
+  else if( expParams[curExperiment].technique == TECH.FS ){
+  
+    xUp = e.pageX;
+    yUp = e.pageY;
+    tUp = Date.now();
+
+    xTraverse = xUp - xDown;
+    yTraverse = yUp - yDown;
+    timeElapsed = tUp - tDown;
+
+    if ((Math.abs(xTraverse) > 30 || Math.abs(yTraverse) > 30 ) && (timeElapsed < 1000))  {
+      console.log("swipe detected!");
+
+      swipeHandler(xTraverse, yTraverse);
+    }
 
 
-    //debugMsg(forceTimeline);
-    chartTimeUpdate = [];
-    chartForceTimeline = [];
-    chartTimeUpdate = timeUpdate;
-    chartForceTimeline = forceTimeline;
+      //debugMsg(forceTimeline);
+      chartTimeUpdate = [];
+      chartForceTimeline = [];
+      chartTimeUpdate = timeUpdate;
+      chartForceTimeline = forceTimeline;
 
 
 
-    if(forceLineChart != null)
-      forceLineChart.destroy();
+      if(forceLineChart != null)
+        forceLineChart.destroy();
 
-    var ctx = document.getElementById("forceLineChart");
+      var ctx = document.getElementById("forceLineChart");
 
-    forceLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: chartTimeUpdate,
-              datasets: [{
-                label:"Force applied",
-                data:chartForceTimeline,
-                borderColor: "#3e95cd",
-                fill:false
-              }]
-            },
-            options: {  responsive:false, 
-                        animation:{duration:0},
-                        scales:{
-                          yAxes:[{
-                            ticks:{
-                              max:1,
-                              min:0,
-                              stepsize:0.05
-                            }
-                          }]
+      forceLineChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: chartTimeUpdate,
+                datasets: [{
+                  label:"Force applied",
+                  data:chartForceTimeline,
+                  borderColor: "#3e95cd",
+                  fill:false
+                }]
+              },
+              options: {  responsive:false, 
+                          animation:{duration:0},
+                          scales:{
+                            yAxes:[{
+                              ticks:{
+                                max:1,
+                                min:0,
+                                stepsize:0.05
+                              }
+                            }]
+                          }
                         }
-                      }
-    });
+      });
 
-    forceLineChart.update(0);
+      forceLineChart.update(0);
 
 
-  timeUpdate = [];
-  forceTimeline = [];
+    timeUpdate = [];
+    forceTimeline = [];
+  }
 
 })
 
