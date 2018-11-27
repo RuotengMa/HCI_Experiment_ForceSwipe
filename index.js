@@ -234,7 +234,7 @@ function swipeHandler( xMove, yMove ){
     swipeDirection = getDirection(xMove, yMove);
 
 
-    if (Math.max.apply(Math, forceTimeline) > forceEdge){ 
+    if (Math.max.apply(Math, forceTimeline) > forceStart){ 
         forceSwipeHandler(swipeDirection);
     }
     else{
@@ -378,6 +378,7 @@ function experimentSetup(){
   minChapters = expParams[curExperiment].minChapters;
   maxChapters = expParams[curExperiment].maxChapters;
   scrollSpeed = expParams[curExperiment].scrollSpeed;
+  forceStart = expParams[curExperiment].forceStart;
 
   expRecord.push(Array());
   sessionCount = 0;
@@ -594,7 +595,7 @@ var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
 
 
 function setConfig(){
-  sessionMax = 10;
+  sessionMax = 4;
   sessionCount = 0;
   minChapters = 3;
   maxChapters = 4; 
@@ -602,7 +603,7 @@ function setConfig(){
   randChapterNum = null; 
 
   curExperiment = 0;
-  forceEdge = 0.5;
+  forceStart = 0.5;
 
   expParams = [
     {
@@ -613,6 +614,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 3,
       "showForceBar": false,
+      "forceStart": 0.5,
     },
     { 
       "expName": "Traditional",
@@ -622,6 +624,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,
       "showForceBar": false,
+      "forceStart": 0.5,
     },
     {
       "expName": "TestSession",
@@ -629,8 +632,9 @@ function setConfig(){
       "technique": TECH.TEST,
       "minChapters": 3,
       "maxChapters": 5,
-      "scrollSpeed": 3,      
+      "scrollSpeed": 5,      
       "showForceBar": false,
+      "forceStart": 0.2,
     },
     {
       "expName": "ForceScroll",
@@ -638,8 +642,9 @@ function setConfig(){
       "technique": TECH.FS,
       "minChapters": 3,
       "maxChapters": 5,
-      "scrollSpeed": 3,
+      "scrollSpeed": 5,
       "showForceBar": false,
+      "forceStart": 0.2,
     },
     {
       "expName": "TestSession",
@@ -649,6 +654,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,      
       "showForceBar": false,
+      "forceStart": 0.3,
     },
     {
       "expName": "ForceScroll",
@@ -658,6 +664,7 @@ function setConfig(){
       "maxChapters": 5,
       "scrollSpeed": 5,
       "showForceBar": false,
+      "forceStart": 0.4,
     },
     {
       "expName": "TestSession",
@@ -665,8 +672,9 @@ function setConfig(){
       "technique": TECH.TEST,
       "minChapters": 3,
       "maxChapters": 5,
-      "scrollSpeed": 7,      
+      "scrollSpeed": 5,      
       "showForceBar": false,
+      "forceStart": 0.5,
     },
     {
       "expName": "ForceScroll",
@@ -674,8 +682,9 @@ function setConfig(){
       "technique": TECH.FS,
       "minChapters": 3,
       "maxChapters": 5,
-      "scrollSpeed": 7,
+      "scrollSpeed": 5,
       "showForceBar": false,
+      "forceStart": 0.5,
     },
   ];
 }
