@@ -472,10 +472,10 @@ function targetDescription(){
   targetLocStr = "";
   $(window).scrollTop(sessionStartPos());
   if($("#targetImg").position().top > sessionStartPos()){
-    targetLocStr = "Scroll <strong>DOWN</strong> for the target";
+    targetLocStr = "Scroll <strong style='color:red'>DOWN</strong> for the target";
   }
   else{
-    targetLocStr = "Scroll <strong>UP</strong> for the target"; 
+    targetLocStr = "Scroll <strong style='color:red'>UP</strong> for the target"; 
   }
 
   console.log("start location : " + sessionStartPos());
