@@ -40,27 +40,7 @@ $("#forceBar_toggle").on("click", function(e){
     $("#forceBar").toggle();
 });
 
-curExpriment = null;
-$("#touchDetectArea").on("mousedown", function(e){
-  if(curExperiment == null){
-
-  }
-  else if( expParams[curExperiment].technique == TECH.FP ){
-
-  }
-
-  debugMsg("mouse down detected");
-  xDown = e.pageX;
-  yDown = e.pageY;
-  tDown = Date.now();
-})
-.on("mouseup", function(e){
-
-  if(curExperiment == null){
-
-  }
-  else if( expParams[curExperiment].technique == TECH.FS ){
-  
+function recordTrace(e){
     xUp = e.pageX;
     yUp = e.pageY;
     tUp = Date.now();
@@ -119,6 +99,40 @@ $("#touchDetectArea").on("mousedown", function(e){
 
     timeUpdate = [];
     forceTimeline = [];
+
+}
+
+curExpriment = null;
+$("#touchDetectArea").on("mousedown", function(e){
+  if(curExperiment == null){
+
+  }
+  else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
+    startFPScroll();
+  }
+  else{
+
+  }
+
+  debugMsg("mouse down detected");
+  xDown = e.pageX;
+  yDown = e.pageY;
+  tDown = Date.now();
+})
+.on("mouseup", function(e){
+
+  if(curExperiment == null){
+
+  }
+  else if( expParams[curExperiment].technique == TECH.FS ){
+    recordTrace(e);
+  }
+  else if(expParams[curExperiment].technique == TECH.FP){
+    endFPScroll();
+  }
+  else if(expParams[curExperiment].technique == TECH.TEST){
+    endFPScroll();
+    recordTrace(e);
   }
 
 })
@@ -267,10 +281,29 @@ Pressure.set('#touchDetectArea', {
   start: function(force, event){
         //console.log(force);
         //forceUpdate(force);
+        if(curExperiment == null){
+
+        }
+        else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
+            //startFPScroll();
+        }
+        else{
+
+        }
     },
   end: function(force, event){
         //console.log(force);
         //forceUpdate(force);
+
+        if(curExperiment == null){
+
+        }
+        else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
+            endFPScroll();
+        }
+        else{
+
+        }
     },
   startDeepPress: function(force, event){
         //console.log(force);
@@ -283,9 +316,42 @@ Pressure.set('#touchDetectArea', {
   change: function(force, event){
         //console.log(force);
         forceUpdate(force);
+        if(curExperiment == null){
+
+        }
+        else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
+          setFPScrollSpeed(force);
+        }
     }
   }
   );
+
+function sigmoid(t, c, a, k) {
+    return c/(1 + a * Math.pow(Math.E, -t));
+}
+
+function setFPScrollSpeed(force){
+  FPScrollSpeed = sigmoid(force * 12 - 6, 100, 1, 0.5);
+}
+
+function FPScroll(){
+  console.log(FPScrollSpeed);
+  $(document).scrollTop($(window).scrollTop() + FPScrollSpeed);
+}
+
+var intFPScroll = null;
+
+function startFPScroll(){
+  console.log("start FPScroll");
+  intFPScroll = setInterval(FPScroll, 5);
+  console.log(intFPScroll);
+}
+
+function endFPScroll(){
+  console.log("end FPScroll");
+  clearInterval(intFPScroll);
+}
+
 
 
 function genChapter(chapterNum, maxChapters, folder="01_animal" ,isTarget=false){
@@ -557,7 +623,7 @@ function sessionStart(){
   $(window).off("scroll");
   $(window).scroll(function(){
     sessionInfo.moveTrace.push($(window).scrollTop());
-    sessionInfo.moveTraceTime.push(Date.now()-traceTimeBase);
+    sessionInfo.moveTraceTime.push(Date.now());
     traceTimeUpdate.push(Date.now()-traceTimeBase);
   });
 
