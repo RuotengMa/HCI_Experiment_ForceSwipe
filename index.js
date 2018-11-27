@@ -329,6 +329,27 @@ function sessionStartPos(){
   return $(document).height()/2;
 }
 
+function genVisual(){
+
+  targetIndicatorPos = $("#targetImg").position().top / $(document).height() * $(window).height();
+  targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;border: 3px solid #73AD21;'> →→→→→→ </div>";
+
+
+  ChapterIndicatorDiv = "";
+  for(i = 0 ; i < randChapterNum ; i++){
+
+    var curChapterID = "#ch"+ (i+1);
+    var curChapterIndicatorPos = $(curChapterID).position().top / $(document).height() * $(window).height();
+    ChapterIndicatorDiv += "<div class='position-fixed' style='z-index: 1;color:blue;right:10px;top:"+curChapterIndicatorPos+"px;border: 3px solid blue;'> ------ </div>";
+  }
+
+  console.log(ChapterIndicatorDiv);
+
+
+  Result = targetDiv + ChapterIndicatorDiv;
+  return Result;
+}
+
 
 function genContent(folder){
 
@@ -343,7 +364,10 @@ function genContent(folder){
       fullContent += genChapter(i+1, maxChapters,folder, (i == targetChapter));
     }
 
+
     $("#randomTextArea").html(fullContent);
+
+    $("#visualGenArea").html(genVisual());
 
     if(!withinView($("#targetImg").position().top, $("#targetImg").height(), sessionStartPos()))
       break;
@@ -461,9 +485,10 @@ function modalMsgSetup(title, msg, callback, buttonMsg, callback2 = null ,button
 function debugKeySetup(){
   $(document).keypress(function(event){
     if(event.key == 't'){
-      //$(document).scrollTop($("#targetImg").position().top);
+      $(document).scrollTop($("#targetImg").position().top);
 
-      animateScroll($("#targetImg").position().top);
+
+      //animateScroll($("#targetImg").position().top);
     }
   });
 }
