@@ -233,7 +233,8 @@ function swipeHandler( xMove, yMove ){
 
     swipeDirection = getDirection(xMove, yMove);
 
-    if (Math.max.apply(Math, forceTimeline) > 0.5){ 
+
+    if (Math.max.apply(Math, forceTimeline) > forceEdge){ 
         forceSwipeHandler(swipeDirection);
     }
     else{
@@ -601,6 +602,7 @@ function setConfig(){
   randChapterNum = null; 
 
   curExperiment = 0;
+  forceEdge = 0.5;
 
   expParams = [
     {
