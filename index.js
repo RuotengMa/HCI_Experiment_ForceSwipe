@@ -108,7 +108,7 @@ $("#touchDetectArea").on("mousedown", function(e){
 
   }
   else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
-    startFPScroll();
+    startFPScroll(e);
   }
   else{
 
@@ -336,13 +336,28 @@ function setFPScrollSpeed(force){
 
 function FPScroll(){
   console.log(FPScrollSpeed);
-  $(document).scrollTop($(window).scrollTop() + FPScrollSpeed);
+  if(dirFPScroll == DIRECTION.DOWN){
+    $(document).scrollTop($(window).scrollTop() + FPScrollSpeed);
+  }
+  else{
+    $(document).scrollTop($(window).scrollTop() - FPScrollSpeed);
+  }
 }
 
 var intFPScroll = null;
+var dirFPScroll = null;
 
-function startFPScroll(){
+function startFPScroll(e){
   console.log("start FPScroll");
+
+  console.log("clientY: " + e.clientY);
+
+  if(e.clientY > $(window).height()/2 ){
+    dirFPScroll = DIRECTION.DOWN;
+  }
+  else{
+    dirFPScroll = DIRECTION.UP;
+  }
   intFPScroll = setInterval(FPScroll, 5);
   console.log(intFPScroll);
 }
