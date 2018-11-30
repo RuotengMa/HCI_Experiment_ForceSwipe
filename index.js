@@ -426,10 +426,12 @@ function sessionStartPos(){
 
 function genVisual(){
 
-  indicatorHeight = 100;
+  indicatorHeight = 10;
 
-  targetIndicatorPos = $("#targetImg").position().top / $(document).height() * $(window).height() - indicatorHeight/2;
-  targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;height:"+indicatorHeight+"px;border: 3px solid #73AD21;'> →→→→→→ </div>";
+  targetIndicatorPos = ($("#targetImg").position().top + $("#targetImg").height()/2) / $(document).height() * $(window).height() - indicatorHeight/2;
+  targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;height:"+indicatorHeight+"px;border: 2px solid #73AD21;width:50px;'></div>";
+
+  //targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;height:"+indicatorHeight+"px;border: 3px solid #73AD21;'> →→→→→→ </div>";
 
 
   ChapterIndicatorDiv = "";
@@ -437,7 +439,7 @@ function genVisual(){
 
     var curChapterID = "#ch"+ (i+1);
     var curChapterIndicatorPos = $(curChapterID).position().top / $(document).height() * $(window).height();
-    ChapterIndicatorDiv += "<div class='position-fixed' style='z-index: 1;color:blue;right:10px;height:"+indicatorHeight+"px;top:"+curChapterIndicatorPos+"px;border: 3px solid blue;'> ------ </div>";
+    ChapterIndicatorDiv += "<div class='position-fixed' style='z-index: 1;color:blue;right:10px;height:"+indicatorHeight+"px;top:"+curChapterIndicatorPos+"px;border: 2px solid blue;width:50px;'></div>";
   }
 
   console.log(ChapterIndicatorDiv);
@@ -464,7 +466,7 @@ function genContent(folder){
 
     $("#randomTextArea").html(fullContent);
 
-    overrideTargetLocation(100);
+    overrideTargetLocation(1000);
 
     $("#visualGenArea").html(genVisual());
 
