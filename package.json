@@ -16,7 +16,8 @@
     "lorem-ipsum": "^1.0.6",
     "popper.js": "^1.14.4",
     "pressure": "^2.1.2",
-    "seedrandom": "^2.4.4"
+    "seedrandom": "^2.4.4",
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "webpack": "^4.22.0",

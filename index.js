@@ -5,6 +5,7 @@ var Chart = require("chart.js");
 var loremIpsum = require("lorem-ipsum");
 var seedrandom = require('seedrandom');
 
+
 require("bootstrap");
 
 function debugMsg(msg){
@@ -29,7 +30,6 @@ function forceUpdate(force){
           sessionInfo.forceLog.push(force);
           sessionInfo.forceLogTime.push(Date.now());
         }
-        
         forceBarVal = 100 * force;
         forceBarValStr = forceBarVal + "%";
 
@@ -118,6 +118,9 @@ $("#touchDetectArea").on("mousedown", function(e){
   else if(expParams[curExperiment].technique == TECH.FP){
     startFPScroll(e);
   }
+  else if(expParams[curExperiment].technique == TECH.SFP){
+    startSFPScroll(e);
+  }
   else{
 
   }
@@ -128,6 +131,7 @@ $("#touchDetectArea").on("mousedown", function(e){
   tDown = Date.now();
 })
 .on("mouseup", function(e){
+  console.log("INTERACTION - mouseup");
 
   if(curExperiment == null){
 
@@ -137,6 +141,9 @@ $("#touchDetectArea").on("mousedown", function(e){
   }
   else if(expParams[curExperiment].technique == TECH.FP){
     endFPScroll();
+  }
+  else if(expParams[curExperiment].technique == TECH.SFP){
+    endSFPScrolll();
   }
   else if(expParams[curExperiment].technique == TECH.TEST){
     endFPScroll();
@@ -194,6 +201,7 @@ function ScrollToPrevChapter(){
   sessionInfo.interactionLog.push(INTERACTION.fsPrev);
   sessionInfo.interactionLogTime.push(Date.now())
   console.log("INTERACTION - fsPrev");
+  isNormalScroll = false;
 
   var curChapterNum = getCurrentChapter();
   var curChapterID = "#ch"+ curChapterNum;
@@ -217,6 +225,7 @@ function ScrollToNextChapter(){
   sessionInfo.interactionLog.push(INTERACTION.fsNext);
   sessionInfo.interactionLogTime.push(Date.now())
   console.log("INTERACTION - fsNext");
+  isNormalScroll = false;
 
   var curChapterNum = getCurrentChapter();
   var curChapterID = "#ch"+ curChapterNum;
@@ -295,6 +304,9 @@ Pressure.set('#touchDetectArea', {
         else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
             //startFPScroll();
         }
+        else if(expParams[curExperiment].technique == TECH.SFP){
+
+        }
         else{
 
         }
@@ -308,6 +320,9 @@ Pressure.set('#touchDetectArea', {
         }
         else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
             endFPScroll();
+        }
+        else if(expParams[curExperiment].technique == TECH.SFP){
+            endSFPScroll();
         }
         else{
 
@@ -330,6 +345,9 @@ Pressure.set('#touchDetectArea', {
         else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
           setFPScrollSpeed(force);
         }
+        else if(expParams[curExperiment].technique == TECH.SFP){
+          setFPScrollSpeed(force);
+        }
     }
   }
   );
@@ -344,7 +362,8 @@ function setFPScrollSpeed(force){
 }
 
 function FPScroll(){
-  console.log(FPScrollSpeed);
+  console.log("FPScrolling");
+  //console.log(FPScrollSpeed);
   if(dirFPScroll == DIRECTION.DOWN){
     $(document).scrollTop($(window).scrollTop() + FPScrollSpeed);
   }
@@ -364,22 +383,48 @@ function startFPScroll(e){
   if(e.clientY > $(window).height()/2 ){
     sessionInfo.interactionLog.push(INTERACTION.fpNextStart );
     sessionInfo.interactionLogTime.push(Date.now())
+    isNormalScroll = false;
 
     dirFPScroll = DIRECTION.DOWN;
   }
   else{
     sessionInfo.interactionLog.push(INTERACTION.fpPrevStart );
     sessionInfo.interactionLogTime.push(Date.now())
+    isNormalScroll = false;
 
     dirFPScroll = DIRECTION.UP;
   }
+  clearInterval(intFPScroll);
   intFPScroll = setInterval(FPScroll, 5);
   console.log(intFPScroll);
 }
+var inSFPS = false;
+function startSFPScroll(e){
+  console.log("start scroll then FP");
+  inSFPS = true;
+  dirFPScroll = lastScrollDir
+  sessionInfo.interactionLog.push(INTERACTION.sfpStart );
+  isNormalScroll = false;
+  sessionInfo.interactionLogTime.push(Date.now());
+  clearInterval(intFPScroll); 
+  intFPScroll = setInterval(FPScroll, 5);
+}
+
+function endSFPScrolll(){
+  console.log("end scroll then FP");
+  inSFPS = false;
+  sessionInfo.interactionLog.push(INTERACTION.sfpStop );
+  isNormalScroll = false;
+  sessionInfo.interactionLogTime.push(Date.now());
+  clearInterval(intFPScroll);  
+}
+
+
 
 function endFPScroll(){
   console.log("end FPScroll");
   sessionInfo.interactionLog.push(INTERACTION.fpStop );
+  isNormalScroll = false;
   sessionInfo.interactionLogTime.push(Date.now())
   clearInterval(intFPScroll);
 }
@@ -673,13 +718,32 @@ function chapterLocationInfo(){
   }
   return chpLocInfo;
 }
-
+var lastScrollTop = null;
+var lastScrollDir = null;
 function sessionStart(){
   console.log("session start");
   inSession = true;
   traceTimeUpdate = Array();
   traceTimeBase = Date.now();
   $(window).off("scroll");
+  lastScrollTop = $(window).scrollTop();
+
+  $(window).on("scroll", function(){
+    if(isNormalScroll){
+       var st = $(this).scrollTop();
+       if (st > lastScrollTop){
+           // downscroll code
+           console.log("normal scroll down.");
+           lastScrollDir = DIRECTION.DOWN;
+       } else {
+          // upscroll code
+          console.log("normal scroll up.");
+          lastScrollDir = DIRECTION.UP;
+       }
+       lastScrollTop = st;
+     }
+  })
+
   $(window).scroll(function(){
     sessionInfo.moveTrace.push($(window).scrollTop());
     sessionInfo.moveTraceTime.push(Date.now());
@@ -755,7 +819,7 @@ function sessionTerminate(){
   debugMsg("session time : " + (sessionInfo.endTime - sessionInfo.startTime)/1000 + "s");
 }
 
-var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
+var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3, "SFP":4});
 
 
 function overrideTargetLocation(newLoc){
@@ -769,7 +833,7 @@ function overrideTargetLocationFromStart(relativeLoc){
 }
 
 
-var TLOC = Object.freeze({"SHORT":4000, "MEDIUM":13000, "LONG":20000});
+var TLOC = Object.freeze({"SHORT":4000, "MEDIUM":10000, "LONG":15000});
 var TDIR = Object.freeze({"UP":-1, "DOWN":1});
 
 function setConfig(){
@@ -787,7 +851,7 @@ function setConfig(){
     {
       "expName": "TestSession",
       "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
-      "technique": TECH.FP,
+      "technique": TECH.TD,
       "minChapters": 5,
       "maxChapters": 6,
       "scrollSpeed": 3,
@@ -800,7 +864,7 @@ function setConfig(){
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only traditional scrolling can be used to locate the target image.",
-      "technique": TECH.FP,
+      "technique": TECH.TD,
       "minChapters": 3,
       "maxChapters": 5,
       "scrollSpeed": 5,
@@ -917,14 +981,18 @@ function stopAnimation(){
 
 }
 
+var isNormalScroll = false;
+
 $('body').on("DOMMouseScroll mousewheel", function(e){
   if( inSession ){
     sessionInfo.interactionLog.push(INTERACTION.normalScroll );
     sessionInfo.interactionLogTime.push(Date.now())
     console.log("INTERACTION - normalScroll");
+    isNormalScroll = true;
   }
   if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
       $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
+    console.log("stop movement");
   }  
 });
 
@@ -934,8 +1002,10 @@ $('body').on("mousedown", function(e){
     sessionInfo.interactionLogTime.push(Date.now())
     console.log("INTERACTION - mouseDown");
   }
+  if(!inSFPS)
     if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
          $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
+      console.log("stop movement");
     }
 });     
 
