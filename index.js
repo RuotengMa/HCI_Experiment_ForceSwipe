@@ -3,7 +3,7 @@ var Pressure = require('pressure');
 var $ = require("jquery");
 var Chart = require("chart.js");
 var loremIpsum = require("lorem-ipsum");
-
+var seedrandom = require('seedrandom');
 
 require("bootstrap");
 
@@ -11,6 +11,8 @@ function debugMsg(msg){
       $("#debug_text").html(msg);
 }
 
+seedrandom('hello.', { global: true });
+console.log('rnd:'+Math.random());
 
 var timeUpdate = [];
 var forceTimeline = [];
@@ -720,9 +722,14 @@ var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
 
 function overrideTargetLocation(newLoc){
   $("#targetImg").offset({top: newLoc, left: $(window).width()/2 - $("#targetImg").width()/2});
-
 }
 
+function overrideTargetLocationFromStart(relativeLoc){
+  overrideTargetLocation($(document.height()/2 + relativeLoc));
+}
+
+
+var TDIST = Object.freeze({"SHORT":1000, "MEDIUM":10000, "LONG":20000});
 
 function setConfig(){
   sessionMax = 4;
@@ -745,6 +752,8 @@ function setConfig(){
       "scrollSpeed": 3,
       "showForceBar": false,
       "forceStart": 0.5,
+      "sessionMax":4,
+      "targetLoc": [TDIST.SHORT, TDIST.MEDIUM, TDIST.LONG, TDIST.SHORT],
     },
     { 
       "expName": "Traditional",
@@ -755,6 +764,8 @@ function setConfig(){
       "scrollSpeed": 5,
       "showForceBar": false,
       "forceStart": 0.5,
+      "sessionMax":4,
+      "targetLoc": [TDIST.SHORT, TDIST.MEDIUM, TDIST.LONG, TDIST.SHORT],
     },
     {
       "expName": "TestSession",
