@@ -454,7 +454,10 @@ function genVisual(){
 
 function genContent(folder){
 
-  seedrandom('hello.world', { global: true });
+  if(isTestSession)
+    Math.seedrandom();
+  else
+    seedrandom('hello.world', { global: true });
 
   while(true){
 
@@ -470,7 +473,8 @@ function genContent(folder){
 
     $("#randomTextArea").html(fullContent);
 
-    overrideTargetLocationFromStart( expParams[curExperiment].TLOC * expParams[curExperiment].TDIR  );
+    if(!expParams[curExperiment].isTestSession)
+      overrideTargetLocationFromStart( expParams[curExperiment].targetLoc[curSession] * expParams[curExperiment].targetDir[curSession]  );
 
     $("#visualGenArea").html(genVisual());
 
@@ -633,9 +637,11 @@ function sessionSetup(){
   */
 
   folder = "01_animal";
+  sessionCount += 1;
+  curSession = sessionCount -1;
+
   output = genContent(folder);
 
-  sessionCount += 1;
 
   targetResponseSetup();
   modalMsgSetup("Session " + sessionCount  ,  targetDescription() , sessionStart, "Start Session");
@@ -736,10 +742,12 @@ var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
 
 
 function overrideTargetLocation(newLoc){
+  console.log("Target Loc Override Absolute :" + newLoc + ", " + curSession);
   $("#targetImg").offset({top: newLoc, left: $(window).width()/2 - $("#targetImg").width()/2});
 }
 
 function overrideTargetLocationFromStart(relativeLoc){
+  console.log("Target Loc Override Relative :" + relativeLoc);
   overrideTargetLocation($(document).height()/2 + relativeLoc);
 }
 
@@ -770,8 +778,6 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":4,
-      "targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
       "isTestSession":true,
     },
     { 
@@ -783,9 +789,10 @@ function setConfig(){
       "scrollSpeed": 5,
       "showForceBar": false,
       "forceStart": 0.5,
+
       "sessionMax":4,
-      "targetDir": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetLocDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
+      "targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
       "isTestSession":false,
     },
     {
