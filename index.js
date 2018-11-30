@@ -181,7 +181,7 @@ function animateScroll(targetPos){
       $("html, body").stop().animate({scrollTop:targetPos}, duration, 'swing', function() { });
 }
 
-var INTERACTION = Object.freeze({"normalScroll":0,"fsPrev":2,"fsNext":3, "fpPrev":4, "fpNext":5, "mouseDown":6});
+var INTERACTION = Object.freeze({"normalScroll":0,"fsPrev":2,"fsNext":3, "fpPrevStart":4, "fpNextStart":5, "mouseDown":6, "fpStop":7});
 
 
 function ScrollToPrevChapter(){
@@ -355,9 +355,15 @@ function startFPScroll(e){
   console.log("clientY: " + e.clientY);
 
   if(e.clientY > $(window).height()/2 ){
+    sessionInfo.interactionLog.push(INTERACTION.fpNextStart );
+    sessionInfo.interactionLogTime.push(Date.now())
+
     dirFPScroll = DIRECTION.DOWN;
   }
   else{
+    sessionInfo.interactionLog.push(INTERACTION.fpPrevStart );
+    sessionInfo.interactionLogTime.push(Date.now())
+
     dirFPScroll = DIRECTION.UP;
   }
   intFPScroll = setInterval(FPScroll, 5);
@@ -366,6 +372,8 @@ function startFPScroll(e){
 
 function endFPScroll(){
   console.log("end FPScroll");
+  sessionInfo.interactionLog.push(INTERACTION.fpStop );
+  sessionInfo.interactionLogTime.push(Date.now())
   clearInterval(intFPScroll);
 }
 
@@ -770,7 +778,7 @@ function setConfig(){
     {
       "expName": "TestSession",
       "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
-      "technique": TECH.TEST,
+      "technique": TECH.FP,
       "minChapters": 5,
       "maxChapters": 6,
       "scrollSpeed": 3,
@@ -783,7 +791,7 @@ function setConfig(){
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only traditional scrolling can be used to locate the target image.",
-      "technique": TECH.TD,
+      "technique": TECH.FP,
       "minChapters": 3,
       "maxChapters": 5,
       "scrollSpeed": 5,
@@ -798,7 +806,7 @@ function setConfig(){
     {
       "expName": "TestSession",
       "expDesc": "This is a practice session to get you familiar with forceScroll.", 
-      "technique": TECH.TEST,
+      "technique": TECH.TD,
       "minChapters": 3,
       "maxChapters": 5,
       "scrollSpeed": 5,      
