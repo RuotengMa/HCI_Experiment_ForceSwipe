@@ -426,8 +426,10 @@ function sessionStartPos(){
 
 function genVisual(){
 
-  targetIndicatorPos = $("#targetImg").position().top / $(document).height() * $(window).height();
-  targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;border: 3px solid #73AD21;'> →→→→→→ </div>";
+  indicatorHeight = 100;
+
+  targetIndicatorPos = $("#targetImg").position().top / $(document).height() * $(window).height() - indicatorHeight/2;
+  targetDiv = "<div class='position-fixed' style='color:red;right:10px;top:"+targetIndicatorPos+"px;height:"+indicatorHeight+"px;border: 3px solid #73AD21;'> →→→→→→ </div>";
 
 
   ChapterIndicatorDiv = "";
@@ -435,7 +437,7 @@ function genVisual(){
 
     var curChapterID = "#ch"+ (i+1);
     var curChapterIndicatorPos = $(curChapterID).position().top / $(document).height() * $(window).height();
-    ChapterIndicatorDiv += "<div class='position-fixed' style='z-index: 1;color:blue;right:10px;top:"+curChapterIndicatorPos+"px;border: 3px solid blue;'> ------ </div>";
+    ChapterIndicatorDiv += "<div class='position-fixed' style='z-index: 1;color:blue;right:10px;height:"+indicatorHeight+"px;top:"+curChapterIndicatorPos+"px;border: 3px solid blue;'> ------ </div>";
   }
 
   console.log(ChapterIndicatorDiv);
@@ -462,6 +464,8 @@ function genContent(folder){
 
     $("#randomTextArea").html(fullContent);
 
+    overrideTargetLocation(100);
+
     $("#visualGenArea").html(genVisual());
 
     if(!withinView($("#targetImg").position().top, $("#targetImg").height(), sessionStartPos()))
@@ -476,7 +480,7 @@ function genRandomImage( folder, maxID, isTarget = false){
   console.log("genRandomImage: " + randImgNum);
 
   if(isTarget)
-    return "<img src='img/"+folder+"/target.jpg' id='targetImg' width='600' height='400'>";
+    return "<img src='img/"+folder+"/target.jpg' id='targetImg' style='position:absolute;' width='600' height='400'>";
   else
     return ""; // No image other than the target
     //return "<img src='img/"+folder+"/"+randImgNum+".jpg' width='600' height='400'>";
@@ -712,6 +716,10 @@ function sessionTerminate(){
 var TECH = Object.freeze({"TEST":0,"TD":1, "FS": 2, "FP":3});
 
 
+function overrideTargetLocation(newLoc){
+  $("#targetImg").offset({top: newLoc, left: $(window).width()/2 - $("#targetImg").width()/2});
+
+}
 
 
 function setConfig(){
