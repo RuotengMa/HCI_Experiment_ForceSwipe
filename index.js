@@ -109,7 +109,7 @@ $("#touchDetectArea").on("mousedown", function(e){
   if(curExperiment == null){
 
   }
-  else if(expParams[curExperiment].technique == TECH.FP || expParams[curExperiment].technique == TECH.TEST ){
+  else if(expParams[curExperiment].technique == TECH.FP){
     startFPScroll(e);
   }
   else{
@@ -454,6 +454,8 @@ function genVisual(){
 
 function genContent(folder){
 
+  seedrandom('hello.world', { global: true });
+
   while(true){
 
     randChapterNum = Math.floor(Math.random() * (maxChapters-minChapters) + minChapters);
@@ -468,7 +470,7 @@ function genContent(folder){
 
     $("#randomTextArea").html(fullContent);
 
-    overrideTargetLocation(1000);
+    overrideTargetLocationFromStart( expParams[curExperiment].TLOC * expParams[curExperiment].TDIR  );
 
     $("#visualGenArea").html(genVisual());
 
@@ -499,13 +501,25 @@ function experimentSetup(){
       "technique": TECH.TEST,
       "minChapters": 3,
       "maxChapters": 4,
-      "scrollSpeed": 5,      
+      "scrollSpeed": 5,  
+
+
+            "sessionMax":4,
+      "targetLoc": [TDIST.SHORT, TDIST.MEDIUM, TDIST.LONG, TDIST.SHORT],
+      "targetLocDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
+      "TestSession":true,    
     },*/
+
 
   minChapters = expParams[curExperiment].minChapters;
   maxChapters = expParams[curExperiment].maxChapters;
   scrollSpeed = expParams[curExperiment].scrollSpeed;
   forceStart = expParams[curExperiment].forceStart;
+  sessionMax = expParams[curExperiment].sessionMax;
+  isTestSession = expParams[curExperiment].isTestSession;
+
+  //targetLoc = expParams[curExperiment].targetLoc;
+  //targetDir = expParams[curExperiment].targetDir;
 
   expRecord.push(Array());
   sessionCount = 0;
@@ -541,7 +555,8 @@ function targetResponseSetup(){
   $("#targetImg").on("click", function(){
       sessionTerminate();
 
-      if(expParams[curExperiment].technique == TECH.TEST){
+//      if(expParams[curExperiment].technique == TECH.TEST){
+      if(isTestSession == true){
         modalMsgSetup("Session End", "You found the target. Do you want to practice more?", sessionSetup, "Try Again", experimentTerminate ,"Start");
       }
       else{
@@ -725,11 +740,12 @@ function overrideTargetLocation(newLoc){
 }
 
 function overrideTargetLocationFromStart(relativeLoc){
-  overrideTargetLocation($(document.height()/2 + relativeLoc));
+  overrideTargetLocation($(document).height()/2 + relativeLoc);
 }
 
 
-var TDIST = Object.freeze({"SHORT":1000, "MEDIUM":10000, "LONG":20000});
+var TLOC = Object.freeze({"SHORT":4000, "MEDIUM":13000, "LONG":20000});
+var TDIR = Object.freeze({"UP":-1, "DOWN":1});
 
 function setConfig(){
   sessionMax = 4;
@@ -747,13 +763,16 @@ function setConfig(){
       "expName": "TestSession",
       "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
       "technique": TECH.TEST,
-      "minChapters": 3,
-      "maxChapters": 5,
+      "minChapters": 5,
+      "maxChapters": 6,
       "scrollSpeed": 3,
       "showForceBar": false,
       "forceStart": 0.5,
+
       "sessionMax":4,
-      "targetLoc": [TDIST.SHORT, TDIST.MEDIUM, TDIST.LONG, TDIST.SHORT],
+      "targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
+      "isTestSession":true,
     },
     { 
       "expName": "Traditional",
@@ -765,7 +784,9 @@ function setConfig(){
       "showForceBar": false,
       "forceStart": 0.5,
       "sessionMax":4,
-      "targetLoc": [TDIST.SHORT, TDIST.MEDIUM, TDIST.LONG, TDIST.SHORT],
+      "targetDir": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetLocDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
+      "isTestSession":false,
     },
     {
       "expName": "TestSession",
