@@ -24,6 +24,12 @@ var forceLineChart = null;
 
 function forceUpdate(force){
         //debugMsg(force);
+
+        if(inSession){
+          sessionInfo.forceLog.push(force);
+          sessionInfo.forceLogTime.push(Date.now());
+        }
+        
         forceBarVal = 100 * force;
         forceBarValStr = forceBarVal + "%";
 
@@ -333,6 +339,7 @@ function sigmoid(t, c, a, k) {
 }
 
 function setFPScrollSpeed(force){
+
   FPScrollSpeed = sigmoid(force * 12 - 6, 100, 1, 0.5);
 }
 
@@ -686,6 +693,8 @@ function sessionStart(){
       moveTraceTime: Array(),
       interactionLog:Array(),
       interactionLogTime:Array(),
+      forceLog:Array(),
+      forceLogTime: Array(),
       startPosition:$(window).scrollTop(), 
       targetPosition:$("#targetImg").position().top,
       scrollSpeed: scrollSpeed,
