@@ -610,7 +610,7 @@ function experimentTerminate(){
   downloadFilename = 'FS_P' + curParticipant + '_' + expParams[curExperiment-1].expName + '.json';
 
   hrefData = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(expRecord));
-  modalMsgSetup("Experiment End", "experiment "+ (curExperiment) + "/" + expParams.length + "done, <br><a href='"+hrefData+"' download='"+downloadFilename+"'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Experiment");
+  modalMsgSetup("Experiment End", "experiment "+ (curExperiment) + "/" + expParams.length + "done, <br><a href='"+hrefData+"' download='"+downloadFilename+" id='expDataDownload'>experiment data</a><br>" + recordText, masterExperimentRun, "Next Experiment", null, "", 3);
 }
 
 
@@ -636,7 +636,18 @@ function targetResponseSetup(){
 
 }
 
-function modalMsgSetup(title, msg, callback, buttonMsg, callback2 = null ,buttonMsg2 = ""){
+function modalEnable(){
+  $("#modalClose").prop('disabled', false);
+    console.log("modal Close enabled!!");
+}
+
+function modalMsgSetup(title, msg, callback, buttonMsg, callback2 = null ,buttonMsg2 = "", waitTime = 0){
+
+  if(waitTime > 0){
+    console.log("modal Close disable!!");
+    $("#modalClose").prop('disabled', true);
+    setTimeout(modalEnable,waitTime * 1000);
+  }
 
   $("#ModalTitle").html(title );
   $("#ModalContent").html(msg );
@@ -846,8 +857,10 @@ function setConfig(){
 
   curExperiment = 0;
   forceStart = 0.5;
-
+  // EXPPARAMS START HERE -----------
   expParams = [
+// P4 241
+    // block 0 (test)
     {
       "expName": "TestSession",
       "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
@@ -858,9 +871,36 @@ function setConfig(){
       "showForceBar": false,
       "forceStart": 0.5,
 
-      "sessionMax":4,
+      "sessionMax":5,
       "isTestSession":true,
     },
+    {
+      "expName": "TestSession",
+      "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
+      "technique": TECH.FS,
+      "minChapters": 5,
+      "maxChapters": 6,
+      "scrollSpeed": 3,
+      "showForceBar": false,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+      "isTestSession":true,
+    },
+    {
+    "expName": "TestSession",
+      "expDesc": "This is a practice session to get you familiar with the environment. The task of all experiments are to locate the target image. There's only one image in the whole document.",
+      "technique": TECH.FP,
+      "minChapters": 5,
+      "maxChapters": 6,
+      "scrollSpeed": 3,
+      "showForceBar": false,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+      "isTestSession":true,
+    },
+    // block 1, 2
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only traditional scrolling can be used to locate the target image.",
@@ -871,72 +911,136 @@ function setConfig(){
       "showForceBar": false,
       "forceStart": 0.5,
 
-      "sessionMax":4,
-      "targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.UP, TDIR.DOWN],
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],
       "isTestSession":false,
     },
-    {
-      "expName": "TestSession",
-      "expDesc": "This is a practice session to get you familiar with forceScroll.", 
+    { 
+      "expName": "ForceScroll",
+      "expDesc": "In this session, both the ForceScroll and traditional scrolling technique can be used to locate the target image.",
+      "technique": TECH.FS,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],    
+      "isTestSession":false,
+    },
+    { 
+      "expName": "ForcePress",
+      "expDesc": "In this session, only the ForcePress technique can be used to locate the target image.",
+      "technique": TECH.FP,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": true,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],
+      "isTestSession":false,
+    },
+    // block 2, 4
+    { 
+      "expName": "Traditional",
+      "expDesc": "In this session, only the Traditional technique can be used to locate the target image.",
       "technique": TECH.TD,
       "minChapters": 3,
       "maxChapters": 5,
-      "scrollSpeed": 5,      
-      "showForceBar": false,
-      "forceStart": 0.3,
-    },
-    {
-      "expName": "ForceScroll",
-      "expDesc": "In this session, you can use both traditional scrolling and forceScroll to locate the target image.",
-      "technique": TECH.FS,
-      "minChapters": 3,
-      "maxChapters": 5,
       "scrollSpeed": 5,
-      "showForceBar": false,
-      "forceStart": 0.3,
-    },
-    {
-      "expName": "TestSession",
-      "expDesc": "This is a test session to get you familiar with a different force scrolling speed. The same forceScroll technique is used, with a different speed.", 
-      "technique": TECH.TEST,
-      "minChapters": 3,
-      "maxChapters": 5,
-      "scrollSpeed": 5,      
-      "showForceBar": false,
-      "forceStart": 0.4,
-    },
-    {
-      "expName": "ForceScroll",
-      "expDesc": "The same forceScroll technique is used, with a different speed.", 
-      "technique": TECH.FS,
-      "minChapters": 3,
-      "maxChapters": 5,
-      "scrollSpeed": 5,
-      "showForceBar": false,
-      "forceStart": 0.4,
-    },
-    {
-      "expName": "TestSession",
-      "expDesc": "This is a test session to get you familiar with a different force scrolling speed. The same forceScroll technique is used, with a different speed.", 
-      "technique": TECH.TEST,
-      "minChapters": 3,
-      "maxChapters": 5,
-      "scrollSpeed": 5,      
       "showForceBar": false,
       "forceStart": 0.5,
-    },
-    {
+
+      "sessionMax":5,
+"targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],
+      "isTestSession":false,
+    },   
+    { 
       "expName": "ForceScroll",
-      "expDesc": "The same forceScroll technique is used, with a different speed.", 
+      "expDesc": "In this session, both the ForceScroll and traditional scrolling technique can be used to locate the target image.",
       "technique": TECH.FS,
       "minChapters": 3,
       "maxChapters": 5,
       "scrollSpeed": 5,
       "showForceBar": false,
       "forceStart": 0.5,
+
+      "sessionMax":5,
+ "targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],     "isTestSession":false,
     },
+    { 
+      "expName": "ForcePress",
+      "expDesc": "In this session, only the ForcePress technique can be used to locate the target image.",
+      "technique": TECH.FP,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": true,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],
+      "isTestSession":false,
+    },
+    // block 3, 1
+    { 
+      "expName": "Traditional",
+      "expDesc": "In this session, only the Traditional technique can be used to locate the target image.",
+      "technique": TECH.TD,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
+      "isTestSession":false,
+    },
+    { 
+      "expName": "ForceScroll",
+      "expDesc": "In this session, both the ForceScroll and traditional scrolling technique can be used to locate the target image.",
+      "technique": TECH.FS,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": false,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
+      "isTestSession":false,
+    },
+    { 
+      "expName": "ForcePress",
+      "expDesc": "In this session, only the ForcePress technique can be used to locate the target image.",
+      "technique": TECH.FP,
+      "minChapters": 3,
+      "maxChapters": 5,
+      "scrollSpeed": 5,
+      "showForceBar": true,
+      "forceStart": 0.5,
+
+      "sessionMax":5,
+"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
+      "isTestSession":false,
+    },
+
   ];
+  // EXPPARAMS END HERE
+
 }
 
 function initRecord(){
