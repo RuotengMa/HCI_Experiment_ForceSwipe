@@ -9,11 +9,32 @@ library("rjson")
 
 
 ```{r}
-result <- fromJSON(file = "FS_P1_Traditional(2).json")
+result <- fromJSON(file = "FS_P1_ForceScroll-3.json")
 test <-result[[1]]
 test_number <- length(test)
 test_number
 ```
+
+```{r}
+check_overshoot_distance <- function(target, pos){
+  return(abs(pos-target))
+}
+```
+
+
+```{r}
+check_overshot <- function(target, pos, direction){
+  if(direction == 0){
+    return (target > pos)
+  } else {
+    return (pos > target)
+  }
+}
+
+
+```
+
+
 
 
 ```{r}
@@ -27,40 +48,54 @@ for (tasks in test) {
   overshoot_position <- c()
   if(tasks$startPosition > tasks$targetPosition){
     #scroll up
-    overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    direction <- 0
+    primary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
     secondary_overshoot_point <- tasks$targetPosition + 400
+    overshoot_point <- primary_overshoot_point
     over_position <- 0
     for (position in tasks$moveTrace) {
-      if (position <= overshoot_point){
+      if (check_overshot(overshoot_point, position, direction) & not_over){
         #overshoot
-        if (over_distance < abs(position - overshoot_point)){
-          over_distance <- abs(position - overshoot_point)
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
           over_position <- position
         }
         not_over <- FALSE
       } 
-      if(position > overshoot_point & (! not_over)){
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
         not_over <- TRUE
         overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
       }
     }
   } else {
     #scroll down
-    overshoot_point <- tasks$targetPosition + 400
+    direction <- 1
+    primary_overshoot_point <- tasks$targetPosition + 400
     secondary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    overshoot_point <- primary_overshoot_point
     over_position <- 0
     for (position in tasks$moveTrace) {
-      if (position >= overshoot_point & not_over){
+      if (check_overshot(overshoot_point, position, direction) & not_over){
         #overshoot
-        if (over_distance < abs(position - overshoot_point)){
-          over_distance <- abs(position - overshoot_point)
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
           over_position <- position
         }
         not_over <- FALSE
       }
-      if(position < overshoot_point & (! not_over)){
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
         not_over <- TRUE
         overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
       }
     }
   }
@@ -73,11 +108,13 @@ for (tasks in test) {
   abline(h=overshoot_point, col="red")
   abline(h=secondary_overshoot_point, col="red")
   #abline(h=overshoot_position, col="black")
+  
   cat("Task number", task_number)
   cat("\nTask completation time: ", task_time)
   cat("\nStarting position: ", tasks$startPosition)
   cat("\nTarget position: ", tasks$targetPosition)
   cat("\nOvershoot point: ", overshoot_point)
+  cat("\nOvershoot point 2: ", secondary_overshoot_point)
   cat("\nOvershoot positions: ", overshoot_position)
   cat("\nAmount of overshoot: ", length(overshoot_position))
   cat("\n---------------------------------------------------------------\n")
@@ -86,3 +123,14 @@ for (tasks in test) {
 
 
 
+```{r}
+result <- fromJSON(file = "FS_P1_Traditional-3.json")
+test <-result[[1]]
+st <- test[[1]]$startTime
+result1 <- fromJSON(file = "FS_P1_ForceScroll-3.json")
+test1 <-result1[[1]]
+et <- test1[[1]]$endTime
+time <- et-st
+time
+
+```
