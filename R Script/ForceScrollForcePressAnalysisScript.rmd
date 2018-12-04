@@ -1,0 +1,143 @@
+---
+title: "889test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("rjson")
+```
+
+
+```{r}
+result <- fromJSON(file = "C:/Users/maruo/OneDrive/Documents/2018_11_30_Exp1-3/P1/FS_P1_Traditional-3.json")
+test <-result[[1]]
+test_number <- length(test)
+test_number
+```
+
+```{r}
+check_overshoot_distance <- function(target, pos){
+  return(abs(pos-target))
+}
+```
+
+
+```{r}
+check_overshot <- function(target, pos, direction){
+  if(direction == 0){
+    return (target > pos)
+  } else {
+    return (pos > target)
+  }
+}
+
+
+```
+
+
+
+
+```{r}
+task_number <- 0
+for (tasks in test) {
+  not_over <- TRUE
+  over_distance <- 0
+  task_number <- task_number + 1
+  task_time <- tasks$endTime - tasks$startTime
+  force_time <- tasks$forceLogTime - tasks$startTime
+  #plot(tasks$moveTraceTime,tasks$moveTrace,ylim = rev(c(1,tasks$documentHeight)),type="b",pch = 16,cex=0.5)
+  plot(force_time,tasks$forceLog)
+  overshoot_position <- c()
+  if(tasks$startPosition > tasks$targetPosition){
+    #scroll up
+    direction <- 0
+    primary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    over_position <- 0
+    secondary_overshoot_point <- tasks$targetPosition + 400
+    overshoot_point <- primary_overshoot_point
+    for (position in tasks$moveTrace) {
+      if (check_overshot(overshoot_point, position, direction) & not_over){
+        #overshoot
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
+          over_position <- position
+        }
+        not_over <- FALSE
+      } 
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
+        not_over <- TRUE
+        overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
+      }
+    }
+  } else {
+    #scroll down
+    direction <- 1
+    primary_overshoot_point <- tasks$targetPosition + 400
+    secondary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    overshoot_point <- primary_overshoot_point
+    over_position <- 0
+    for (position in tasks$moveTrace) {
+      if (check_overshot(overshoot_point, position, direction) & not_over){
+        #overshoot
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
+          over_position <- position
+        }
+        not_over <- FALSE
+      }
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
+        not_over <- TRUE
+        overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
+      }
+    }
+  }
+  
+  over_distance_array <- abs(overshoot_position - overshoot_point)
+  total_overshoot <- sum(over_distance_array)
+  
+  interaction_time <- tasks$interactionLogTime# - tasks$startTime
+  
+  #abline(v=tasks$interactionLogTime, col=tasks$interactionLog+1)
+  
+  #abline(h=tasks$targetPosition, col="green")
+  #abline(h=tasks$chapterLocation, col="blue")
+  #abline(h=overshoot_point, col="red")
+  #abline(h=secondary_overshoot_point, col="red")
+  
+  
+  
+  cat("Task number", task_number)
+  cat("\nTask completation time: ", task_time)
+  cat("\nStarting position: ", tasks$startPosition)
+  cat("\nTarget position: ", tasks$targetPosition)
+  cat("\nOvershoot point: ", overshoot_point)
+  cat("\nOvershoot point 2: ", secondary_overshoot_point)
+  cat("\nOvershoot positions: ", overshoot_position)
+  cat("\nAmount of overshoot: ", length(overshoot_position))
+  cat("\n---------------------------------------------------------------\n")
+}
+```
+
+
+
+```{r}
+result <- fromJSON(file = "FS_P1_Traditional-3.json")
+test <-result[[1]]
+st <- test[[1]]$startTime
+result1 <- fromJSON(file = "FS_P1_ForceScroll-3.json")
+test1 <-result1[[1]]
+et <- test1[[1]]$endTime
+time <- et-st
+time
+
+```
