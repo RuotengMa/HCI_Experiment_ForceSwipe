@@ -347,6 +347,7 @@ Pressure.set('#touchDetectArea', {
         }
         else if(expParams[curExperiment].technique == TECH.SFP){
           setFPScrollSpeed(force);
+          compensateFPScrollSpeed();
         }
     }
   }
@@ -354,6 +355,15 @@ Pressure.set('#touchDetectArea', {
 
 function sigmoid(t, c, a, k) {
     return c/(1 + a * Math.pow(Math.E, -t));
+}
+
+function compensateFPScrollSpeed(){
+  console.log(curScrollSpeed);
+
+  if(curScrollSpeed > 0){
+    FPScrollSpeed += Math.abs(curScrollSpeed);
+    curScrollSpeed -= 0.2;
+  }
 }
 
 function setFPScrollSpeed(force){
@@ -401,7 +411,6 @@ function startFPScroll(e){
 var inSFPS = false;
 function startSFPScroll(e){
   console.log("start scroll then FP");
-  inSFPS = true;
   dirFPScroll = lastScrollDir
   sessionInfo.interactionLog.push(INTERACTION.sfpStart );
   isNormalScroll = false;
@@ -412,7 +421,6 @@ function startSFPScroll(e){
 
 function endSFPScrolll(){
   console.log("end scroll then FP");
-  inSFPS = false;
   sessionInfo.interactionLog.push(INTERACTION.sfpStop );
   isNormalScroll = false;
   sessionInfo.interactionLogTime.push(Date.now());
@@ -730,7 +738,10 @@ function chapterLocationInfo(){
   return chpLocInfo;
 }
 var lastScrollTop = null;
+var lastScrollTime = null;
 var lastScrollDir = null;
+
+var curScrollSpeed = null;
 function sessionStart(){
   console.log("session start");
   inSession = true;
@@ -738,10 +749,15 @@ function sessionStart(){
   traceTimeBase = Date.now();
   $(window).off("scroll");
   lastScrollTop = $(window).scrollTop();
+  lastScrollTime = Date.now();
 
   $(window).on("scroll", function(){
     if(isNormalScroll){
        var st = $(this).scrollTop();
+
+       var curScrollTime = Date.now();
+       curScrollSpeed = Math.abs(Math.abs(st - lastScrollTop)/(curScrollTime - lastScrollTime));
+       console.log("curScrollSpeed: " + curScrollSpeed);
        if (st > lastScrollTop){
            // downscroll code
            console.log("normal scroll down.");
@@ -752,6 +768,7 @@ function sessionStart(){
           lastScrollDir = DIRECTION.UP;
        }
        lastScrollTop = st;
+       lastScrollTime = curScrollTime;
      }
   })
 
@@ -859,7 +876,8 @@ function setConfig(){
   forceStart = 0.5;
   // EXPPARAMS START HERE -----------
   expParams = [
-// P4 241
+
+// P12 653
     // block 0 (test)
     {
       "expName": "TestSession",
@@ -900,7 +918,7 @@ function setConfig(){
       "sessionMax":5,
       "isTestSession":true,
     },
-    // block 1, 2
+    // block 1, 6
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only traditional scrolling can be used to locate the target image.",
@@ -912,7 +930,7 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
+      "targetLoc": [TLOC.LONG, TLOC.SHORT, TLOC.LONG, TLOC.SHORT, TLOC.MEDIUM],
       "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],
       "isTestSession":false,
     },
@@ -927,8 +945,8 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
-      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],    
+      "targetLoc": [TLOC.LONG, TLOC.SHORT, TLOC.LONG, TLOC.SHORT, TLOC.MEDIUM],
+      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],     
       "isTestSession":false,
     },
     { 
@@ -942,11 +960,11 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM, TLOC.LONG],
+      "targetLoc": [TLOC.LONG, TLOC.SHORT, TLOC.LONG, TLOC.SHORT, TLOC.MEDIUM],
       "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.DOWN, TDIR.DOWN],
       "isTestSession":false,
     },
-    // block 2, 4
+    // block 2, 5
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only the Traditional technique can be used to locate the target image.",
@@ -958,8 +976,8 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],
+      "targetLoc": [TLOC.LONG, TLOC.LONG, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
       "isTestSession":false,
     },   
     { 
@@ -973,8 +991,8 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
- "targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],     "isTestSession":false,
+      "targetLoc": [TLOC.LONG, TLOC.LONG, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],     "isTestSession":false,
     },
     { 
       "expName": "ForcePress",
@@ -987,11 +1005,11 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.MEDIUM, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG, TLOC.SHORT],
-      "targetDir": [TDIR.DOWN, TDIR.UP, TDIR.UP, TDIR.UP, TDIR.DOWN],
+      "targetLoc": [TLOC.LONG, TLOC.LONG, TLOC.MEDIUM, TLOC.SHORT, TLOC.MEDIUM],
+      "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
       "isTestSession":false,
     },
-    // block 3, 1
+    // block 3, 3
     { 
       "expName": "Traditional",
       "expDesc": "In this session, only the Traditional technique can be used to locate the target image.",
@@ -1003,7 +1021,7 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetLoc": [TLOC.MEDIUM, TLOC.MEDIUM, TLOC.SHORT, TLOC.LONG, TLOC.SHORT],
       "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
       "isTestSession":false,
     },
@@ -1018,7 +1036,7 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetLoc": [TLOC.MEDIUM, TLOC.MEDIUM, TLOC.SHORT, TLOC.LONG, TLOC.SHORT],
       "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
       "isTestSession":false,
     },
@@ -1033,7 +1051,7 @@ function setConfig(){
       "forceStart": 0.5,
 
       "sessionMax":5,
-"targetLoc": [TLOC.SHORT, TLOC.SHORT, TLOC.LONG, TLOC.MEDIUM, TLOC.LONG],
+      "targetLoc": [TLOC.MEDIUM, TLOC.MEDIUM, TLOC.SHORT, TLOC.LONG, TLOC.SHORT],
       "targetDir": [TDIR.UP, TDIR.DOWN, TDIR.DOWN, TDIR.UP, TDIR.UP],
       "isTestSession":false,
     },
@@ -1094,7 +1112,8 @@ $('body').on("DOMMouseScroll mousewheel", function(e){
     console.log("INTERACTION - normalScroll");
     isNormalScroll = true;
   }
-  if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
+  if( expParams[curExperiment].technique != TECH.SFP )
+    if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
       $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
     console.log("stop movement");
   }  
@@ -1106,7 +1125,7 @@ $('body').on("mousedown", function(e){
     sessionInfo.interactionLogTime.push(Date.now())
     console.log("INTERACTION - mouseDown");
   }
-  if(!inSFPS)
+  if( expParams[curExperiment].technique != TECH.SFP )
     if ( e.which > 0 || e.type === "mousedown" || e.type === "mousewheel"){
          $('html, body').stop(); // This identifies the scroll as a user action, stops the animation, then unbinds the event straight after (optional)
       console.log("stop movement");
