@@ -1,0 +1,560 @@
+---
+title: "CS889Project_DataAnalysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gmodels)
+library(knitr)
+library(ARTool)
+library(reshape)
+library(ez)
+library(apa)
+```
+
+```{r}
+f <- read.csv("C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/result/forcetechnique2.csv")
+```
+
+
+# time
+## Check parametric and plot graph
+First check distribution, remove outliers and plot graph
+```{r}
+ggplot() +
+  geom_jitter(aes(technique, time), data = f, colour = I("red"), position = position_jitter(width = 0.05))
+
+filtered_frame <- filter(f, !(abs(time - mean(time)) > 3*sd(time)))
+ggplot() +
+  geom_jitter(aes(technique, time), data = filtered_frame, colour = I("red"), position = position_jitter(width = 0.05))
+check_normal = filtered_frame %>%
+                group_by(technique, distance) %>%
+                summarize(p_value = shapiro.test(time)$p)
+kable(check_normal)
+
+time_frame <- filtered_frame[,c("technique","distance","time")] %>% group_by(technique,distance) %>% summarise(time = mean(time))
+time_frame
+ggplot(data=time_frame, aes(x=distance, y=time, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+## ANOVA and Aligned Rank Transform + ANOVA((Used unfiltered data, as filtered data resulted in missing cell for ANOVA))
+Run ANOVA, run Aligned Rank Tranform and ANOVA, and post-hoc with non-parametric tests.
+```{r warning=FALSE}
+
+data_aggr =   f %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(time = mean(time))  # compute means for time 
+
+
+filtered_frame.long <- melt(data_aggr, id = c("time","pid","block","technique","distance"))
+filtered_frame.long$technique = factor(filtered_frame.long$technique)
+filtered_frame.long$block = factor(filtered_frame.long$block)
+filtered_frame.long$distance = factor(filtered_frame.long$distance)
+
+
+results = ezANOVA(filtered_frame.long, dv=.(time), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(time ~ technique*distance*block + (1|pid), data=filtered_frame.long)
+outcome <- anova(m,detailed = TRUE)
+outcome
+
+res = pairwise.wilcox.test(filtered_frame.long$time, interaction(filtered_frame.long$technique,filtered_frame.long$distance), p.adj = "bonf")
+res
+res1 = pairwise.wilcox.test(filtered_frame.long$time, interaction(filtered_frame.long$technique,filtered_frame.long$block), p.adj = "bonf")
+res1
+res2 = pairwise.wilcox.test(filtered_frame.long$time, interaction(filtered_frame.long$block), p.adj = "bonf")
+res2
+
+filtered_frame.long %>% 
+              group_by(block) %>%  # Group data by factors
+              summarise(time = mean(time))  # compute means for time 
+```
+This is learning effct, block 1 significantly longer than other block, so remove block one.
+
+## Learning effect
+remove block one and run ANOVA, ART + ANOVA, check significant effort from both tests.
+```{r}
+filtered_frame1.long <- filter(f, block > 1)
+data_aggr =   filtered_frame1.long %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(time = mean(time))  # compute means for time 
+filtered_frame1.long <- melt(data_aggr, id = c("time","pid","block","technique","distance"))
+filtered_frame1.long$technique = factor(filtered_frame1.long$technique)
+filtered_frame1.long$block = factor(filtered_frame1.long$block)
+filtered_frame1.long$distance = factor(filtered_frame1.long$distance)
+results = ezANOVA(filtered_frame1.long, dv=.(time), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(time ~ technique*distance*block + (1|pid), data=filtered_frame1.long)
+#m
+outcome <- anova(m,detailed = TRUE)
+outcome
+```
+## Post-hoc
+There is significant effect on distance, technique, and the interaction between technique and distance, thus run post-hoc non-parametric wilcox rank test 
+```{r}
+pairwise.wilcox.test(filtered_frame1.long$time, filtered_frame1.long$distance, p.adj = "bonf", paired = TRUE)
+pairwise.wilcox.test(filtered_frame1.long$time, filtered_frame1.long$technique, p.adj = "bonf", paired = TRUE)
+pairwise.wilcox.test(filtered_frame1.long$time, interaction(filtered_frame1.long$technique,filtered_frame1.long$distance),p.adj = "bonf", paired = TRUE)
+filtered_frame1.long %>% 
+              group_by(technique,distance) %>%  # Group data by factors
+              summarise(time = mean(time))  # compute means for time 
+filtered_frame1.long %>% 
+              group_by(technique) %>%  # Group data by factors
+              summarise(time = mean(time))
+filtered_frame1.long %>% 
+              group_by(distance) %>%  # Group data by factors
+              summarise(time = mean(time))
+```
+ ANOVA revealed significant effects of technique (F(2,22)=39.28, p < 0.001) and distance (F(2,22)=22.40, p < 0.001) on time. Aligned rank transformed data confirmed these findings (F(2,187)=129.82, p < 0.0001 and F(2,187)=56.89, p < 0.0001). It also indicated a significant interaction between technique and distance (p < 0.005). A subsequent wilcox post-hoc analysis showed a significant increase in time for ForceScroll compared with the other techniques (p < 0.0005) as distances became longer. time for each technique also significantly increased between short distance and long distance (p < 0.0005), while the increase and decrease from medium distance to both short and long distance were not significant.
+
+## Run a Friedman test to verify the result
+```{r warning=FALSE}
+data_aggr =   filter(f, block > 1) %>% 
+              group_by(pid, technique, distance) %>%  # Group data by factors
+              summarise(time = mean(time))  # compute means for time 
+
+f2 <- unite(data_aggr, "distance_technique", c("distance", "technique"))
+mdata = melt(f2, id=c("pid","distance_technique","time"))
+f3 <- spread(mdata, distance_technique, time)
+f3$pid = NULL
+f3$block = NULL
+f3$overshoot_number = NULL
+f3$overshoot_distance = NULL
+f3$longest_overshoot = NULL
+f3$number_technique_used = NULL
+f3$number_normal_used = NULL
+f3$total_interaction = NULL
+f3$distance = NULL
+f3 <- data.matrix(f3)
+friedman.test(data.matrix(f3))
+pairwise.wilcox.test(mdata$time, interaction(mdata$distance_technique), paired = TRUE, p.adj = "bonf")
+```
+
+## Plot new graph
+```{r warning=FALSE}
+filtered_frame <- filter(filtered_frame1.long, !(abs(time - mean(time)) > 3*sd(time)))
+
+time_frame <- filtered_frame[,c("technique","distance","time")] %>% group_by(technique,distance) %>% summarise(ci.lower = ci(time)["CI lower"], ci.upper = ci(time)["CI upper"], time = mean(time))
+
+ggplot(data=time_frame, aes(x=distance, y=time, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  geom_errorbar(aes(ymin=ci.lower, ymax=ci.upper), width=.2,position=position_dodge(.9))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#interaction
+## check parametric and plot graph
+```{r}
+ggplot() +
+  geom_jitter(aes(technique, total_interaction), data = f, colour = I("red"), position = position_jitter(width = 0.05))
+
+filtered_frame <- filter(f, !(abs(total_interaction - mean(total_interaction)) > 2*sd(total_interaction)))
+ggplot() +
+  geom_jitter(aes(technique, total_interaction), data = filtered_frame, colour = I("red"), position = position_jitter(width = 0.05))
+
+check_normal = filtered_frame %>%
+                group_by(technique, distance) %>%
+                summarize(p_value = shapiro.test(total_interaction)$p)
+check_normal
+
+distance_frame <- filtered_frame[,c("technique","distance","total_interaction")] %>% group_by(technique,distance) %>% summarise(ci.lower = ci(total_interaction)["CI lower"], ci.upper = ci(total_interaction)["CI upper"], total_interaction = mean(total_interaction))
+#distance_frame
+
+ggplot(data=distance_frame, aes(x=distance, y=total_interaction, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge()) + 
+  geom_errorbar(aes(ymin=ci.lower, ymax=ci.upper), width=.2,position=position_dodge(.9))
+
+```
+
+## Run ANOVA, run ART + ANOVA (Used unfiltered data, as filtered data resulted in missing cell for ANOVA)
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(total_interaction = mean(total_interaction))  # compute means for time 
+
+filtered_frame.long <- melt(data_aggr, id = c("pid","block","technique","distance","total_interaction"))
+filtered_frame.long$technique = factor(filtered_frame.long$technique)
+filtered_frame.long$distance = factor(filtered_frame.long$distance)
+filtered_frame.long$block = factor(filtered_frame.long$block)
+
+filtered_frame.long
+
+results = ezANOVA(filtered_frame.long, dv=.(total_interaction), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(total_interaction ~ technique*distance*block + (1|pid), data=filtered_frame.long)
+outcome <- anova(m,detailed = TRUE)
+outcome
+```
+
+ANOVA prior to transform showed a significant effect of technique (F(2,22)=26.86,p<0.001) and distance (F(2,22)=16.37,p<0.001) on number of interaction, and a significant interaction between technique and distance (F(4,44)=8.02,p<0.001). ANOVA on transformed data confirmed this finding.
+
+## Post-hoc analysis
+```{r warning=FALSE}
+res = pairwise.wilcox.test(filtered_frame.long$total_interaction, interaction(filtered_frame.long$technique,filtered_frame.long$distance), p.adj = "bonf",paired = TRUE)
+res
+
+res1 = pairwise.wilcox.test(filtered_frame.long$total_interaction, interaction(filtered_frame.long$distance), p.adj = "bonf",paired = TRUE)
+res1
+
+res2 = pairwise.wilcox.test(filtered_frame.long$total_interaction, interaction(filtered_frame.long$technique), p.adj = "bonf",paired = TRUE)
+res2
+
+filtered_frame.long %>% 
+              group_by(technique, distance) %>%  # Group data by factors
+              summarise(total_interaction = mean(total_interaction))  
+
+filtered_frame.long %>% 
+              group_by(technique) %>%  # Group data by factors
+              summarise(total_interaction = mean(total_interaction)) 
+```
+Wilcox rank tests for post-hoc analysis: traditional technique resulted in significantly more interactions compared with the other techniques (p<0.0001, Traditional:9.8, ForceScroll:5.5, ForcePress:2.8), and ForceScroll had significantly more interactions compared with ForcePress at long and medium distances (p<0.001, long: ForcePress:2.6, ForceScroll:6.3, medium: ForcePress:2.8, ForceScroll:5.3). The distance had no significant effect for all technique except for traditional technique, whose interactions at short distance was significantly less compared with at long distance (p<0.001, short:6.6, long:12.3).
+
+## Run a Friedman test to verify the result
+```{r warning=FALSE}
+data_aggr =   filtered_frame %>% 
+              group_by(pid, technique, distance) %>%  # Group data by factors
+              summarise(total_interaction = mean(total_interaction))  # compute means for time 
+
+f2 <- unite(data_aggr, "distance_technique", c("distance", "technique"))
+#f2
+mdata = melt(f2, id=c("pid","distance_technique","total_interaction"))
+#mdata
+f3 <- spread(mdata, distance_technique, total_interaction)
+#f3
+f3$pid = NULL
+f3$block = NULL
+f3$overshoot_number = NULL
+f3$overshoot_distance = NULL
+f3$longest_overshoot = NULL
+f3$number_technique_used = NULL
+f3$number_normal_used = NULL
+f3$time = NULL
+f3$distance = NULL
+f3 <- data.matrix(f3)
+#f3
+res = friedman.test(data.matrix(f3))
+res
+res1 = pairwise.wilcox.test(mdata$total_interaction, interaction(mdata$distance_technique), paired = TRUE, p.adj = "bonf")
+res1
+```
+
+
+
+
+#overshoot distance
+
+## Check parametric, remove outliers, and plot graph
+```{r}
+ggplot() +
+  geom_jitter(aes(technique, overshoot_distance), data = f, colour = I("red"), position = position_jitter(width = 0.05))
+
+filtered_dis_frame <- filter(f, !(abs(overshoot_distance - mean(overshoot_distance)) > 3*sd(overshoot_distance)))
+ggplot() +
+  geom_jitter(aes(technique, overshoot_distance), data = filtered_dis_frame, colour = I("red"), position = position_jitter(width = 0.05))
+filtered_dis_frame
+check_normal = filtered_dis_frame %>%
+                group_by(technique, distance) %>%
+                summarize(p_value = shapiro.test(overshoot_distance)$p)
+check_normal
+
+distance_frame <- filtered_dis_frame[,c("technique","distance","overshoot_distance")] %>% 
+  group_by(technique,distance) %>% 
+  summarise(ci.lower = ci(overshoot_distance,confidence=0.95)["CI lower"], ci.upper = ci(overshoot_distance,confidence=0.95)["CI upper"],overshoot_distance = mean(overshoot_distance))
+distance_frame
+ggplot(data=distance_frame, aes(x=distance, y=overshoot_distance, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper), width = .2, position = position_dodge(.9))
+```
+
+## Run ANOVA, run ART + ANOVA (Used unfiltered data, as filtered data resulted in missing cell for ANOVA)
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(overshoot_distance = mean(overshoot_distance))  # compute means for time 
+
+filtered_frame.long <- melt(data_aggr, id = c("pid","block","technique","distance","overshoot_distance"))
+filtered_frame.long$technique = factor(filtered_frame.long$technique)
+filtered_frame.long$distance = factor(filtered_frame.long$distance)
+filtered_frame.long$block = factor(filtered_frame.long$block)
+
+results = ezANOVA(filtered_frame.long, dv=.(overshoot_distance), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(overshoot_distance ~ technique*distance*block + (1|pid), data=filtered_frame.long)
+outcome <- anova(m,detailed = TRUE)
+outcome
+```
+
+ANOVA prior and after aligned rank transform showed no significant effect of block on overshoot distance. ANOVA prior to aligned rank transform showed a significant effect of technique (F(1.27,13.93)=9.72,p<0.01) on overshoot distance, and a significant interaction between technique and distance (F(4,44)=5.01,p<0.005). ANOVA on transformed data confirmed this finding (p<0.005 for all), and indicated a significant effect of distance (p<0.001) on overshoot distance and a significant interaction between distance and block (p<0.005).
+
+## Post-hoc analysis
+```{r}
+res = pairwise.wilcox.test(filtered_frame.long$overshoot_distance, interaction(filtered_frame.long$technique,filtered_frame.long$distance), p.adj = "bonf",paired = TRUE)
+res
+res1 = pairwise.wilcox.test(filtered_frame.long$overshoot_distance, interaction(filtered_frame.long$distance,filtered_frame.long$block), p.adj = "bonf",paired = TRUE)
+res1
+res2 = pairwise.wilcox.test(filtered_frame.long$overshoot_distance, filtered_frame.long$distance, p.adj = "bonf",paired = TRUE)
+res2
+res3 = pairwise.wilcox.test(filtered_frame.long$overshoot_distance, filtered_frame.long$technique, p.adj = "bonf",paired = TRUE)
+res3
+filtered_frame.long %>% 
+              group_by(technique,distance) %>%  # Group data by factors
+              summarise(overshoot_distance = mean(overshoot_distance))  # compute means for time 
+filtered_frame.long %>% 
+              group_by(technique) %>%  # Group data by factors
+              summarise(overshoot_distance = mean(overshoot_distance)) 
+
+```
+
+Wilcox rank tests were performed for post-hoc analysis. There was no evidences of the interaction between distance and block, and no evidences of significant effect from distance. The overshoot distance for long distance traditional technique was significantly larger compared with long distance ForcePress (p<0.005, Traditional: 438.36, ForcePress: 78.02). Short distance ForceScroll resulted in a significantly longer overshoot distance compared with both traditional and ForcePress techniques(p<0.005, Traditional:147.54, ForceScroll:986.83, ForcePress:140.76). Overall, the overshoot distance for ForcePress is much smaller compared with other techniques(p<0.0001, Traditional:323.37, ForceScroll:582.03, ForcePress:98.6).
+
+## Run a Friedman test to verify the result
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, technique, distance) %>%  # Group data by factors
+              summarise(overshoot_distance = mean(overshoot_distance))  # compute means for time 
+
+f2 <- unite(data_aggr, "distance_technique", c("distance", "technique"))
+#f2
+mdata = melt(f2, id=c("pid","distance_technique","overshoot_distance"))
+#mdata
+f3 <- spread(mdata, distance_technique, overshoot_distance)
+#f3
+f3$pid = NULL
+f3$block = NULL
+f3$overshoot_number = NULL
+f3$total_interaction = NULL
+f3$longest_overshoot = NULL
+f3$number_technique_used = NULL
+f3$number_normal_used = NULL
+f3$time = NULL
+f3$distance = NULL
+f3 <- data.matrix(f3)
+#f3
+res = friedman.test(data.matrix(f3))
+res
+res1 = pairwise.wilcox.test(mdata$overshoot_distance, mdata$distance_technique, paired = TRUE, p.adj = "bonf")
+res1
+```
+
+
+#questions
+```{r}
+fq <- read.csv("C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/result/forcequestion.csv")
+```
+These part of the data was simply analyzed using their mean value, as they are simple enough.
+```{r}
+keep <- subset(fq, select = c(mactf, mactff,tdc,fsc,fps))
+colMeans(keep)
+```
+The comfort level for ForceScroll is the lowest, and the comfort level for Traditional and ForcePress is the same, and higher than ForceScroll.
+
+
+
+
+
+#Two additional measures
+These two measures were collected and analyzed, we later decided to not include them, since overshoot distance represent our hypotheses very well. And these analysis did not reveal new information. As such, we did not record the detailed data since it was not included in the paper. 
+##overshoot number and outliers
+```{r}
+ggplot() +
+  geom_jitter(aes(technique, overshoot_number), data = f, colour = I("red"), position = position_jitter(width = 0.05))
+
+filtered_dis_frame <- filter(f, !(abs(overshoot_number - mean(overshoot_number)) > 3*sd(overshoot_number)))
+ggplot() +
+  geom_jitter(aes(technique, overshoot_number), data = filtered_dis_frame, colour = I("red"), position = position_jitter(width = 0.05))
+
+check_normal = filtered_dis_frame %>%
+                group_by(technique, distance) %>%
+                summarize(p_value = shapiro.test(overshoot_number)$p)
+check_normal
+
+distance_frame <- filtered_dis_frame[,c("technique","distance","overshoot_number")] %>% group_by(technique,distance) %>% summarise(overshoot_number = mean(overshoot_number))
+distance_frame
+ggplot(data=distance_frame, aes(x=distance, y=overshoot_number, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(overshoot_number = mean(overshoot_number))  # compute means for time 
+
+filtered_frame.long <- melt(data_aggr, id = c("pid","block","technique","distance","overshoot_number"))
+filtered_frame.long$technique = factor(filtered_frame.long$technique)
+filtered_frame.long$distance = factor(filtered_frame.long$distance)
+filtered_frame.long$block = factor(filtered_frame.long$block)
+
+results = ezANOVA(filtered_frame.long, dv=.(overshoot_number), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(overshoot_number ~ technique*distance*block + (1|pid), data=filtered_frame.long)
+outcome <- anova(m,detailed = TRUE)
+outcome
+
+res = pairwise.wilcox.test(filtered_frame.long$overshoot_number, interaction(filtered_frame.long$technique,filtered_frame.long$distance), p.adj = "bonf")
+res
+res1 = pairwise.wilcox.test(filtered_frame.long$overshoot_number, interaction(filtered_frame.long$technique,filtered_frame.long$block), p.adj = "bonf")
+res1
+
+
+```
+
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, technique, distance) %>%  # Group data by factors
+              summarise(overshoot_number = mean(overshoot_number))  # compute means for time 
+
+f2 <- unite(data_aggr, "distance_technique", c("distance", "technique"))
+#f2
+mdata = melt(f2, id=c("pid","distance_technique","overshoot_number"))
+#mdata
+f3 <- spread(mdata, distance_technique, overshoot_number)
+#f3
+f3$pid = NULL
+f3$block = NULL
+f3$overshoot_distance = NULL
+f3$total_interaction = NULL
+f3$longest_overshoot = NULL
+f3$number_technique_used = NULL
+f3$number_normal_used = NULL
+f3$time = NULL
+f3$distance = NULL
+f3 <- data.matrix(f3)
+#f3
+res = friedman.test(data.matrix(f3))
+res
+res1 = pairwise.wilcox.test(mdata$overshoot_number, mdata$distance_technique, paired = TRUE, p.adj = "bonf")
+res1
+```
+
+
+##max overshoot and outliers
+```{r}
+ggplot() +
+  geom_jitter(aes(technique, longest_overshoot), data = f, colour = I("red"), position = position_jitter(width = 0.05))
+
+filtered_dis_frame <- filter(f, !(abs(longest_overshoot - mean(longest_overshoot)) > 3*sd(longest_overshoot)))
+ggplot() +
+  geom_jitter(aes(technique, longest_overshoot), data = filtered_dis_frame, colour = I("red"), position = position_jitter(width = 0.05))
+
+check_normal = filtered_dis_frame %>%
+                group_by(technique, distance) %>%
+                summarize(p_value = shapiro.test(longest_overshoot)$p)
+check_normal
+
+distance_frame <- filtered_dis_frame[,c("technique","distance","longest_overshoot")] %>% group_by(technique,distance) %>% summarise(longest_overshoot = mean(longest_overshoot))
+distance_frame
+ggplot(data=distance_frame, aes(x=distance, y=longest_overshoot, fill=technique)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, block, technique, distance) %>%  # Group data by factors
+              summarise(longest_overshoot = mean(longest_overshoot))  # compute means for time 
+
+filtered_frame.long <- melt(data_aggr, id = c("pid","block","technique","distance","longest_overshoot"))
+filtered_frame.long$technique = factor(filtered_frame.long$technique)
+filtered_frame.long$distance = factor(filtered_frame.long$distance)
+filtered_frame.long$block = factor(filtered_frame.long$block)
+
+results = ezANOVA(filtered_frame.long, dv=.(longest_overshoot), wid=.(pid), within=.(block,technique,distance), detailed = TRUE)
+kable(results$ANOVA)
+kable(results$`Mauchly's Test for Sphericity`)
+kable(results$`Sphericity Corrections`)
+kable(anova_apa(results, sph_corr ="gg", print=FALSE))
+
+m <- art(longest_overshoot ~ technique*distance*block + (1|pid), data=filtered_frame.long)
+outcome <- anova(m,detailed = TRUE)
+outcome
+
+res = pairwise.wilcox.test(filtered_frame.long$longest_overshoot, interaction(filtered_frame.long$technique,filtered_frame.long$distance), p.adj = "bonf")
+res
+res1 = pairwise.wilcox.test(filtered_frame.long$longest_overshoot, interaction(filtered_frame.long$technique,filtered_frame.long$block), p.adj = "bonf")
+res1
+res2 = pairwise.wilcox.test(filtered_frame.long$longest_overshoot, interaction(filtered_frame.long$distance,filtered_frame.long$block), p.adj = "bonf")
+res2
+
+
+```
+
+```{r warning=FALSE}
+data_aggr =   f %>% 
+              group_by(pid, technique, distance) %>%  # Group data by factors
+              summarise(longest_overshoot = mean(longest_overshoot))  # compute means for time 
+
+f2 <- unite(data_aggr, "distance_technique", c("distance", "technique"))
+#f2
+mdata = melt(f2, id=c("pid","distance_technique","longest_overshoot"))
+#mdata
+f3 <- spread(mdata, distance_technique, longest_overshoot)
+#f3
+f3$pid = NULL
+f3$block = NULL
+f3$overshoot_distance = NULL
+f3$total_interaction = NULL
+f3$overshoot_number = NULL
+f3$number_technique_used = NULL
+f3$number_normal_used = NULL
+f3$time = NULL
+f3$distance = NULL
+f3 <- data.matrix(f3)
+#f3
+res = friedman.test(data.matrix(f3))
+res
+res1 = pairwise.wilcox.test(mdata$longest_overshoot, mdata$distance_technique, paired = TRUE, p.adj = "bonf")
+res1
+```
+

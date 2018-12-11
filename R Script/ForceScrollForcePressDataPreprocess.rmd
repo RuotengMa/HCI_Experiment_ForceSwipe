@@ -1,0 +1,389 @@
+---
+title: "889Preprocess"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("rjson")
+setwd('C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/json')
+```
+
+
+
+```{r}
+check_overshoot_distance <- function(target, pos){
+  return(abs(pos-target))
+}
+```
+
+
+```{r}
+check_overshot <- function(target, pos, direction){
+  if(direction == 0){
+    return (target > pos)
+  } else {
+    return (pos > target)
+  }
+}
+
+
+```
+
+
+```{r}
+
+files <-
+  list.files(path = 'C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/json')
+df <- data.frame()
+for (file in files) {
+  fname <- strsplit(file, split = '_')
+  pid <- fname[[1]][2]
+  tech <- fname[[1]][3]
+  block <- fname[[1]][4]
+  filepath <-
+    paste("C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/json/",
+          file,
+          sep = '')
+  result <- fromJSON(file = filepath)
+  test <- result[[1]]
+  test_number <- length(test)
+  
+  task_number <- 0
+  
+  for (tasks in test) {
+    not_over <- TRUE
+    over_distance <- 0
+    task_number <- task_number + 1
+    task_time <- tasks$endTime - tasks$startTime
+    overshoot_position <- c()
+    distance_array <- c(0)
+    if (tasks$startPosition > tasks$targetPosition) {
+      #scroll up
+      direction <- 0
+      primary_overshoot_point <-
+        tasks$targetPosition - tasks$windowHeight
+      over_position <- 0
+      secondary_overshoot_point <- tasks$targetPosition + 400
+      overshoot_point <- primary_overshoot_point
+      for (position in tasks$moveTrace) {
+        if (check_overshot(overshoot_point, position, direction)) {
+          #overshoot
+          temp_distance <-
+            check_overshoot_distance(overshoot_point, position)
+          if (over_distance < temp_distance) {
+            over_distance <- temp_distance
+            over_position <- position
+          }
+          not_over <- FALSE
+        }
+        if ((!check_overshot(overshoot_point, position, direction)) &
+            (!not_over)) {
+          not_over <- TRUE
+          distance_array <- c(distance_array, over_distance)
+          overshoot_position <- c(overshoot_position, over_position)
+          direction <- abs(direction - 1)
+          over_distance <- 0
+          primary_overshoot_point <- secondary_overshoot_point
+          secondary_overshoot_point <- overshoot_point
+          overshoot_point <- primary_overshoot_point
+        }
+      }
+    } else {
+      #scroll down
+      direction <- 1
+      primary_overshoot_point <- tasks$targetPosition + 400
+      secondary_overshoot_point <-
+        tasks$targetPosition - tasks$windowHeight
+      overshoot_point <- primary_overshoot_point
+      over_position <- 0
+      for (position in tasks$moveTrace) {
+        if (check_overshot(overshoot_point, position, direction)) {
+          #overshoot
+          temp_distance <-
+            check_overshoot_distance(overshoot_point, position)
+          if (over_distance < temp_distance) {
+            over_distance <- temp_distance
+            over_position <- position
+          }
+          not_over <- FALSE
+        }
+        if ((!check_overshot(overshoot_point, position, direction)) &
+            (!not_over)) {
+          not_over <- TRUE
+          distance_array <- c(distance_array, over_distance)
+          overshoot_position <- c(overshoot_position, over_position)
+          direction <- abs(direction - 1)
+          over_distance <- 0
+          primary_overshoot_point <- secondary_overshoot_point
+          secondary_overshoot_point <- overshoot_point
+          overshoot_point <- primary_overshoot_point
+        }
+      }
+    }
+    end_move <-
+      tasks$moveTraceTime[length(tasks$moveTraceTime)] - tasks$startTime
+    valid_move <-
+      length(which(tasks$interactionLogTime - tasks$startTime < end_move + 1))
+    task_log <- tasks$interactionLog[1:valid_move]
+  normal_count1 <- 0
+  technique_count <- 0
+  last_normal <- 0
+  t_counter <- TRUE
+  ta <- c()
+  tt <- c()
+  for (t in 1:valid_move) {
+    if ((task_log[t] == 0 )&&t_counter){
+      normal_count1 <- normal_count1 + 1
+      t_counter <- FALSE
+      last_normal <- tasks$interactionLogTime[t]
+      tt <- c(tt,task_log[t])
+      ta <- c(ta,tasks$interactionLogTime[t])
+    } else if (task_log[t] == 0){
+      if(tasks$interactionLogTime[t] - last_normal > 120){
+        normal_count1 <- normal_count1 + 1
+        t_counter <- TRUE
+        last_normal <- tasks$interactionLogTime[t]
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+        last_normal <- tasks$interactionLogTime[t]
+      }
+    } else {
+      if(!task_log[t] == 7){
+        technique_count <- technique_count + 1
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+      } else {
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+      }
+    }
+  }
+  normal_count <- length(which(task_log == 0)) + length(which(task_log == 6))
+  
+  technique_count1 <- length(task_log) - length(which(task_log == 7)) - normal_count
+    
+    total_overshoot <- sum(distance_array)
+    max_overshoot <- max(distance_array)
+    
+    interaction_time <- task_log# - tasks$startTime
+    
+    
+    de <-
+      data.frame(
+        pid,
+        block,
+        tech,
+        task_time,
+        abs(tasks$startPosition - tasks$targetPosition),
+        length(overshoot_position),
+        total_overshoot,
+        max_overshoot,
+        technique_count1,
+        normal_count1
+      )
+    names(de) <-
+      c(
+        "pid",
+        "block",
+        "technique",
+        "time",
+        "distance",
+        "overshoot_number",
+        "overshoot_distance",
+        "longest_overshoot",
+        "number_technique_used",
+        "number_normal_used"
+      )
+    
+    df <- rbind(df, de)
+    
+    
+  }
+}
+
+df
+
+write.csv(df, file = "C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/result/forcetechnique2.csv")
+
+
+```
+
+```{r}
+result <- fromJSON(file = "C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/json/FS_P3_ForceScroll_2")
+test <-result[[1]]
+test_number <- length(test)
+
+task_number <- 0
+df <- data.frame()
+for (tasks in test) {
+  not_over <- TRUE
+  over_distance <- 0
+  task_number <- task_number + 1
+  task_time <- tasks$endTime - tasks$startTime
+  #force_time <- tasks$forceLogTime - tasks$startTime
+  #plot(force_time,tasks$forceLog)
+  plot(tasks$moveTraceTime-tasks$startTime,tasks$moveTrace,ylim = rev(c(1,tasks$documentHeight)),type="b",pch = 16,cex=0.5)
+  
+  overshoot_position <- c()
+  distance_array <- c(0)
+  if(tasks$startPosition > tasks$targetPosition){
+    #scroll up
+    direction <- 0
+    primary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    over_position <- 0
+    secondary_overshoot_point <- tasks$targetPosition + 400
+    overshoot_point <- primary_overshoot_point
+    for (position in tasks$moveTrace) {
+      if (check_overshot(overshoot_point, position, direction)){
+        #overshoot
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
+          over_position <- position
+        }
+        not_over <- FALSE
+      } 
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
+        not_over <- TRUE
+        distance_array <- c(distance_array, over_distance)
+        overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        over_distance <- 0
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
+      }
+    }
+  } else {
+    #scroll down
+    direction <- 1
+    primary_overshoot_point <- tasks$targetPosition + 400
+    secondary_overshoot_point <- tasks$targetPosition - tasks$windowHeight
+    overshoot_point <- primary_overshoot_point
+    over_position <- 0
+    for (position in tasks$moveTrace) {
+      if (check_overshot(overshoot_point, position, direction)){
+        #overshoot
+        temp_distance <- check_overshoot_distance(overshoot_point,position)
+        if (over_distance < temp_distance){
+          over_distance <- temp_distance
+          over_position <- position
+        }
+        not_over <- FALSE
+      }
+      if((!check_overshot(overshoot_point, position, direction)) & (! not_over)){
+        not_over <- TRUE
+        distance_array <- c(distance_array, over_distance)
+        overshoot_position <- c(overshoot_position, over_position)
+        direction <- abs(direction-1)
+        over_distance <- 0
+        primary_overshoot_point <- secondary_overshoot_point
+        secondary_overshoot_point <- overshoot_point
+        overshoot_point <- primary_overshoot_point
+      }
+    }
+  }
+  end_move <- tasks$moveTraceTime[length(tasks$moveTraceTime)]-tasks$startTime
+  valid_move <- length(which(tasks$interactionLogTime-tasks$startTime < end_move + 1))
+  task_log <- tasks$interactionLog[1:valid_move]
+  
+  normal_count1 <- 0
+  technique_count <- 0
+  last_normal <- 0
+  t_counter <- TRUE
+  ta <- c()
+  tt <- c()
+  for (t in 1:valid_move) {
+    if ((task_log[t] == 0 )&&t_counter){
+      normal_count1 <- normal_count1 + 1
+      t_counter <- FALSE
+      last_normal <- tasks$interactionLogTime[t]
+      tt <- c(tt,task_log[t])
+      ta <- c(ta,tasks$interactionLogTime[t])
+    } else if (task_log[t] == 0){
+      if(tasks$interactionLogTime[t] - last_normal > 120){
+        normal_count1 <- normal_count1 + 1
+        t_counter <- TRUE
+        last_normal <- tasks$interactionLogTime[t]
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+        last_normal <- tasks$interactionLogTime[t]
+      }
+    } else {
+      if(!task_log[t] == 7){
+        technique_count <- technique_count + 1
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+      } else {
+        tt <- c(tt,task_log[t])
+        ta <- c(ta,tasks$interactionLogTime[t])
+      }
+    }
+  }
+  normal_count <- length(which(task_log == 0)) + length(which(task_log == 6))
+  
+  technique_count1 <- length(task_log) - length(which(task_log == 7)) - normal_count
+  
+  #over_distance_array <- abs(overshoot_position - overshoot_point)
+  total_overshoot <- sum(distance_array)
+  max_overshoot <- max(distance_array)
+  #action_table <- count(tasks$interactionLog)
+  interaction_time <- task_log# - tasks$startTime
+  
+  #abline(v=tasks$interactionLogTime-tasks$startTime, col=task_log+1)
+  abline(v=ta-tasks$startTime, col=tt+1)
+  abline(h=tasks$targetPosition, col="green")
+  abline(h=tasks$chapterLocation, col="blue")
+  abline(h=overshoot_point, col="red")
+  abline(h=secondary_overshoot_point, col="red")
+  
+  
+  #de <- data.frame(3,3,"FS",task_time,abs(tasks$startPosition-tasks$targetPosition),length(overshoot_position),total_overshoot,max_overshoot,technique_count)
+  #names(de) <- c("pid", "block", "technique", "time", "distance", "overshoot_number", "overshoot_distance", "longest_overshoot", "number_technique_used")
+  
+  #df <- rbind(df,de)
+  
+
+ print(normal_count1)
+   print(technique_count1)
+  #cat("Task number", task_number)
+  #cat("\nTask completation time: ", task_time)
+  #cat("\nStarting position: ", tasks$startPosition)
+  #cat("\nTarget position: ", tasks$targetPosition)
+  #cat("\nOvershoot point: ", overshoot_point)
+  #cat("\nOvershoot point 2: ", secondary_overshoot_point)
+  #cat("\nOvershoot positions: ", overshoot_position)
+  #cat("\nAmount of overshoot: ", length(overshoot_position))
+  #cat("\nTotal overshoot distance: ", total_overshoot)
+  #cat("\nMaximum overshoot distance: ", max_overshoot)
+  #cat("\nNormal action: ", normal_count)
+  #cat("\nTechnique action: ", technique_count)
+  #cat("\nActions: ", tasks$interactionLog[1:valid_move])
+  #cat("\nAction times: ", tasks$interactionLogTime-tasks$startTime)
+  #cat("\nEnd times: ", tasks$moveTraceTime[length(tasks$moveTraceTime)]-tasks$startTime)
+  #cat("\nValid moves: ", valid_move)
+  #cat("\n---------------------------------------------------------------\n")
+}
+#df
+#write.csv(df, file = "C:/Users/maruo_000/OneDrive/Documents/2018_11_30_Exp1-3/result/3_3_fs.csv")
+
+```
+
+
+
+```{r}
+result <- fromJSON(file = "FS_P1_Traditional-3.json")
+test <-result[[1]]
+st <- test[[1]]$startTime
+result1 <- fromJSON(file = "FS_P1_ForceScroll-3.json")
+test1 <-result1[[1]]
+et <- test1[[1]]$endTime
+time <- et-st
+time
+
+```
+
+```{r}
+plot(c(1,2,3),c(2,3,4))
+abline(h=2.5, col=7)
+```
