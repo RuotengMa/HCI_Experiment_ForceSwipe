@@ -141,6 +141,7 @@ $("#touchDetectArea").on("mousedown", function(e){
   }
   else if(expParams[curExperiment].technique == TECH.FP){
     endFPScroll();
+    recordTrace(e);
   }
   else if(expParams[curExperiment].technique == TECH.SFP){
     endSFPScrolll();
