@@ -2,11 +2,24 @@
 \BOOKMARK [1][-]{section.8}{Related Work}{}% 2
 \BOOKMARK [2][-]{subsection.10}{Scrolling}{section.8}% 3
 \BOOKMARK [2][-]{subsection.12}{Force Touch}{section.8}% 4
-\BOOKMARK [1][-]{section.14}{Implementation}{}% 5
-\BOOKMARK [1][-]{section.16}{Experimentation}{}% 6
-\BOOKMARK [2][-]{subsection.18}{Method and Apparatus}{section.16}% 7
-\BOOKMARK [2][-]{subsection.20}{Procedure, Task, and Design}{section.16}% 8
-\BOOKMARK [2][-]{subsection.22}{Participants}{section.16}% 9
-\BOOKMARK [2][-]{subsection.24}{Research Hypothesis}{section.16}% 10
-\BOOKMARK [1][-]{section.26}{References }{}% 11
-\BOOKMARK [1][-]{section.28}{Appendix}{}% 12
+\BOOKMARK [1][-]{section.14}{Techniques}{}% 5
+\BOOKMARK [2][-]{subsection.16}{ForceScroll}{section.14}% 6
+\BOOKMARK [2][-]{subsection.18}{ForcePress}{section.14}% 7
+\BOOKMARK [1][-]{section.21}{Implementation}{}% 8
+\BOOKMARK [1][-]{section.24}{Pilot}{}% 9
+\BOOKMARK [1][-]{section.26}{Experimentation}{}% 10
+\BOOKMARK [2][-]{subsection.28}{Method and Apparatus}{section.26}% 11
+\BOOKMARK [2][-]{subsection.30}{Procedure, Task, and Design}{section.26}% 12
+\BOOKMARK [2][-]{subsection.33}{Participants}{section.26}% 13
+\BOOKMARK [2][-]{subsection.35}{Research Hypotheses}{section.26}% 14
+\BOOKMARK [2][-]{subsection.37}{Results}{section.26}% 15
+\BOOKMARK [3][-]{subsubsection.39}{Time}{subsection.37}% 16
+\BOOKMARK [3][-]{subsubsection.42}{Number of interaction}{subsection.37}% 17
+\BOOKMARK [3][-]{subsubsection.45}{Overshoot distance}{subsection.37}% 18
+\BOOKMARK [3][-]{subsubsection.48}{Overshoot number and Longest overshoot}{subsection.37}% 19
+\BOOKMARK [3][-]{subsubsection.50}{Ease of use}{subsection.37}% 20
+\BOOKMARK [2][-]{subsection.52}{Discussion}{section.26}% 21
+\BOOKMARK [1][-]{section.54}{Future Work}{}% 22
+\BOOKMARK [1][-]{section.56}{Conclusion}{}% 23
+\BOOKMARK [1][-]{section.58}{References }{}% 24
+\BOOKMARK [1][-]{section.60}{Appendix}{}% 25
